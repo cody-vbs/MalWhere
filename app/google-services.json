@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "680964354681",
+    "project_id": "malwhere-c7c9b",
+    "storage_bucket": "malwhere-c7c9b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:680964354681:android:f53c15bbd1c53a87895aa8",
+        "android_client_info": {
+          "package_name": "com.codyvbs.malwhere"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "680964354681-5fcv0aq7am602j24arc7d7ib1bfd239p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArpzCHGrrEiDsVijIit-V3w0xSSHcjh_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "680964354681-5fcv0aq7am602j24arc7d7ib1bfd239p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
