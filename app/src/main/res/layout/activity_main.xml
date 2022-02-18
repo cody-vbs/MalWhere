@@ -29,11 +29,13 @@
             android:layout_height="match_parent" >
 
             <ImageView
+                android:id="@+id/img_preview"
                 android:layout_width="match_parent"
-                android:layout_height="550dp"
+                android:layout_height="500dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/bkg_add_img"
-                android:adjustViewBounds="true"/>
+                android:adjustViewBounds="true"
+                android:layout_marginTop="15dp"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_check"

@@ -53,5 +53,15 @@ dependencies {
 
     implementation 'com.github.matecode:Snacky:1.1.5'
 
+    //machine learning kit
+    implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
+
+
+    //image cropper
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+
+    //easy permission
+    implementation 'pub.devrel:easypermissions:3.0.0'
+
 
 }
