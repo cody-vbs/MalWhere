@@ -63,5 +63,7 @@ dependencies {
     //easy permission
     implementation 'pub.devrel:easypermissions:3.0.0'
 
+    implementation 'com.linkedin.urls:url-detector:0.1.17'
+
 
 }

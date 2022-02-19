@@ -35,6 +35,9 @@ import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
+import com.linkedin.urls.Url;
+import com.linkedin.urls.detection.UrlDetector;
+import com.linkedin.urls.detection.UrlDetectorOptions;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -63,10 +66,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     Uri imageUri;
 
-    ProgressDialog progressDialog;
+    ProgressDialog progressDialog,progressDialog2;
 
 
-    StringBuilder recognizedText = new StringBuilder();
+    StringBuilder recognizedText;
+
+    String longTxt;
 
 
     @Override
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabCheck = findViewById(R.id.fab_check);
         fabAdd = findViewById(R.id.fab_add);
         preview = findViewById(R.id.img_preview);
+
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -129,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
-            case R.id.nav_message:
+            case R.id.nav_imagescan:
             case R.id.nav_signout:
                 signOut();
 
@@ -286,8 +292,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
 
+        recognizedText = new StringBuilder();
+
         for (FirebaseVisionText.TextBlock block: text.getTextBlocks()){
-             recognizedText.append(block.getText());
+             recognizedText.append(block.getText()).append("\n");
         }
 
         recogTextDialog();
@@ -321,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         protected void onPostExecute(Void result) {
 
-            if(progressDialog.isShowing()){
+            if(progressDialog != null && progressDialog.isShowing()){
                 progressDialog.dismiss();
             }
 
@@ -333,6 +341,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    class RecogURLTask extends  AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog2 = new ProgressDialog(MainActivity.this);
+            progressDialog2.setMessage("Detecting URL");
+            progressDialog2.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(progressDialog2 != null && progressDialog2.isShowing()){
+                progressDialog2.dismiss();
+            }
+
+            //call the extract url method
+            extractUrl(longTxt);
+        }
+    }
+
     private void recogTextDialog(){
         final EditText recogText  = new EditText(this);
         recogText.setText(recognizedText.toString());
@@ -341,10 +381,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setTitle("Recognized Characters")
                 .setView(recogText)
                 .setIcon(android.R.drawable.sym_def_app_icon)
+                .setCancelable(false)
                 .setPositiveButton("Extract URL", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String txt = recogText.getText().toString();
+                        longTxt = recogText.getText().toString();
+
+                        //execute URL Detection
+                        new RecogURLTask().execute();
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -353,6 +397,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }).show();
 
+    }
+
+    private void recogURLDialog(String detectedURL){
+        final EditText recogURL  = new EditText(this);
+        recogURL.setText(detectedURL);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Detected URL")
+                .setView(recogURL)
+                .setIcon(android.R.drawable.sym_def_app_icon)
+                .setCancelable(false)
+                .setPositiveButton("Analyze", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String mURLs = recogURL.getText().toString();
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        }).show();
+    }
+
+    private void extractUrl (String longTxt){
+        UrlDetector urlDetector = new UrlDetector(longTxt, UrlDetectorOptions.Default);
+        List<Url> found = urlDetector.detect();
+
+        StringBuilder myUrl = new StringBuilder();
+
+        for (Url url: found){
+
+            if(url.getFullUrl().length() > 1){
+                myUrl.append(url).append("\n");
+            }else{
+                myUrl.append(url);
+            }
+
+
+        }
+
+        //call the dialog
+        recogURLDialog(myUrl.toString());
     }
 
 
