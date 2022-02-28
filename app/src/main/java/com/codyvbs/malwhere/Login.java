@@ -23,6 +23,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.kanishka.virustotalv2.VirusTotalConfig;
 
 public class Login extends AppCompatActivity {
 
@@ -52,6 +53,8 @@ public class Login extends AppCompatActivity {
 
         // Configure Google Client
         configureGoogleClient();
+
+        VirusTotalConfig.getConfigInstance().getVirusTotalAPIKey();
     }
 
     private void configureGoogleClient() {

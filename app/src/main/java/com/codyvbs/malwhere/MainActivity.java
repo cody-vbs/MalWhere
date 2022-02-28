@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     Snacky.builder()
                         .setView(view)
+                            .setTextColor(getResources().getColor(R.color.white))
                         .setText("Add an image that contains a URL")
                         .setIcon(R.drawable.ic_baseline_warning_24)
                         .warning()
@@ -380,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         new AlertDialog.Builder(this)
                 .setTitle("Recognized Characters")
                 .setView(recogText)
-                .setIcon(android.R.drawable.sym_def_app_icon)
+                .setIcon(R.drawable.app_icon)
                 .setCancelable(false)
                 .setPositiveButton("Extract URL", new DialogInterface.OnClickListener() {
                     @Override
@@ -406,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         new AlertDialog.Builder(this)
                 .setTitle("Detected URL")
                 .setView(recogURL)
-                .setIcon(android.R.drawable.sym_def_app_icon)
+                .setIcon(R.drawable.app_icon)
                 .setCancelable(false)
                 .setPositiveButton("Analyze", new DialogInterface.OnClickListener() {
                     @Override
@@ -425,22 +426,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         UrlDetector urlDetector = new UrlDetector(longTxt, UrlDetectorOptions.Default);
         List<Url> found = urlDetector.detect();
 
-        StringBuilder myUrl = new StringBuilder();
+        String myURl = "";
+        if(found.size() == 0){
+           new AlertDialog.Builder(this)
+                   .setTitle("MalWhere")
+                   .setMessage("No URLs found. Please try again")
+                   .setCancelable(false)
+                   .setIcon(R.drawable.app_icon)
+                   .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialogInterface, int i) {
 
-        for (Url url: found){
-
-            if(url.getFullUrl().length() > 1){
-                myUrl.append(url).append("\n");
-            }else{
-                myUrl.append(url);
+                       }
+                   }).show();
+        }else{
+            for (Url url: found){
+                myURl = url.getFullUrl();
             }
+            //set the url value to adapter
+            new Adapter().setDetected_URL(myURl);
 
-
+            //open new activity
+            startActivity(new Intent(MainActivity.this,ScanUrl.class));
         }
 
-        //call the dialog
-        recogURLDialog(myUrl.toString());
     }
+
+
 
 
 

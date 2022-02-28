@@ -65,5 +65,9 @@ dependencies {
 
     implementation 'com.linkedin.urls:url-detector:0.1.17'
 
+    //Virus total 2.0
+    implementation 'com.github.vatbub:VirustotalPublicV2.0:1.1.rB'
+
+
 
 }

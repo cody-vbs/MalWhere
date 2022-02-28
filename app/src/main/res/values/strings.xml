@@ -3,4 +3,6 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="tagline">\" Make Sure It\'s Safe \"</string>
+    <string name="virus_total_key">0332bfc39c9ccbed656e5c29f2821e957b2c6a589c2f00887dc788ebe6a4f35a</string>
 </resources>
