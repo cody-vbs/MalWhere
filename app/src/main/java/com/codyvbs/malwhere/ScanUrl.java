@@ -8,21 +8,23 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,16 +39,14 @@ import com.kanishka.virustotal.dto.FileScanReport;
 import com.kanishka.virustotal.dto.ScanInfo;
 import com.kanishka.virustotal.dto.VirusScanInfo;
 import com.kanishka.virustotal.exception.APIKeyNotFoundException;
-import com.kanishka.virustotal.exception.InvalidArgumentsException;
-import com.kanishka.virustotal.exception.QuotaExceededException;
 import com.kanishka.virustotal.exception.UnauthorizedAccessException;
 import com.kanishka.virustotalv2.VirusTotalConfig;
 import com.kanishka.virustotalv2.VirustotalPublicV2;
 import com.kanishka.virustotalv2.VirustotalPublicV2Impl;
 
-import java.io.IOException;
+import org.w3c.dom.Text;
+
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -59,7 +59,11 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     EditText editTextUrl;
     TextView tv1,tv2,tvScanResult;
-    Button scanBtn;
+    Button scanBtn,retryBtn;
+
+    ProgressDialog progressDialog;
+
+    int cleanSiteCount = 0, unratedSiteCount = 0,maliciousCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +81,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         tv1 = findViewById(R.id.tv1);
         tv2 = findViewById(R.id.tv2);
         scanBtn  = findViewById(R.id.scan_btn);
+        retryBtn = findViewById(R.id.btn_retry);
         tvScanResult = findViewById(R.id.tvscanResult);
 
         //this will make the textview scrollble
@@ -107,7 +112,15 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                scanUrl("https://evilzone.org/");
+                new ScanURLTask().execute();
+            }
+        });
+
+        retryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ScanUrl.this,MainActivity.class));
+                finish();
             }
         });
 
@@ -186,6 +199,41 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     }
     //method for scanning URL using Virus Total API
+
+
+    class ScanURLTask extends AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(ScanUrl.this);
+            progressDialog.setMessage("Analyzing URL");
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //call the extract url scan report method
+            scanUrl(editTextUrl.getText().toString());
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(progressDialog != null && progressDialog.isShowing()){
+                progressDialog.dismiss();
+            }
+
+            getUrlReport(editTextUrl.getText().toString());
+
+
+
+        }
+    }
+
+
+
     public void scanUrl(String myUrl) {
         try {
             VirusTotalConfig.getConfigInstance().setVirusTotalAPIKey(getResources().getString(R.string.virus_total_key));
@@ -195,33 +243,24 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
             ScanInfo[] scanInfoArr = virusTotalRef.scanUrls(urls);
 
             for (ScanInfo scanInformation : scanInfoArr) {
-                System.out.println("___SCAN INFORMATION___");
-//                System.out.println("MD5 :\t" + scanInformation.getMd5());
-//                System.out.println("Perma Link :\t" + scanInformation.getPermalink());
-//                System.out.println("Resource :\t" + scanInformation.getResource());
-//                System.out.println("Scan Date :\t" + scanInformation.getScan_date());
-//                System.out.println("Scan Id :\t" + scanInformation.getScan_id());
-//                System.out.println("SHA1 :\t" + scanInformation.getSha1());
-//                System.out.println("SHA256 :\t" + scanInformation.getSha256());
-//                System.out.println("Verbose Msg :\t" + scanInformation.getVerbose_msg());
-//                System.out.println("Response Code :\t" + scanInformation.getResponse_code());
-//                System.out.println("done.");
+                Log.d(TAG,"___SCAN INFORMATION___");
+
             }
 
-            getUrlReport(myUrl);
 
         } catch (APIKeyNotFoundException ex) {
-            System.err.println("API Key not found! " + ex.getMessage());
+            Toast.makeText(this,"API Key not found! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (UnsupportedEncodingException ex) {
-            System.err.println("Unsupported Encoding Format!" + ex.getMessage());
+            Toast.makeText(this,"Unsupported Encoding Format!" + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (UnauthorizedAccessException ex) {
-            System.err.println("Invalid API Key " + ex.getMessage());
+            Toast.makeText(this,"Invalid API Key " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (Exception ex) {
-            System.err.println("Something Bad Happened! " + ex.getMessage());
+            Toast.makeText(this,"Something Bad Happened! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
 
     public void getUrlReport(String myUrl){
+
         try {
             VirusTotalConfig.getConfigInstance().setVirusTotalAPIKey(getResources().getString(R.string.virus_total_key));
             VirustotalPublicV2 virusTotalRef = new VirustotalPublicV2Impl();
@@ -235,17 +274,6 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                 if(report.getResponseCode()==0){
                     continue;
                 }
-//                System.out.println("MD5 :\t" + report.getMd5());
-//                System.out.println("Perma link :\t" + report.getPermalink());
-//                System.out.println("Resourve :\t" + report.getResource());
-//                System.out.println("Scan Date :\t" + report.getScan_date());
-//                System.out.println("Scan Id :\t" + report.getScan_id());
-//                System.out.println("SHA1 :\t" + report.getSha1());
-//                System.out.println("SHA256 :\t" + report.getSha256());
-//                System.out.println("Verbose Msg :\t" + report.getVerbose_msg());
-//                System.out.println("Response Code :\t" + report.getResponse_code());
-//                System.out.println("Positives :\t" + report.getPositives());
-//                System.out.println("Total :\t" + report.getTotal());
 
                 StringBuilder sbResult = new StringBuilder();
                 Map<String, VirusScanInfo> scans = report.getScans();
@@ -254,47 +282,95 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
                 for (String key : scans.keySet()) {
                     VirusScanInfo virusInfo = scans.get(key);
-//                    System.out.println("Scanner : " + key);
-//                    System.out.println("\t\t Resut : " + virusInfo.getResult());
-//                    System.out.println("\t\t Update : " + virusInfo.getUpdate());
-//                    System.out.println("\t\t Version :" + virusInfo.getVersion());
 
-//                    if(virusInfo.getResult().equalsIgnoreCase("clean site")){
-//                        SpannableString cleanStr = new SpannableString(virusInfo.getResult());
-//                        cleanStr.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorAccent)), 0, cleanStr.length(), 0);
-//                        spannableStringBuilder.append(key+ " .................... " + cleanStr);
-//                    }else{
-//                        SpannableString unratedStr = new SpannableString(virusInfo.getResult());
-//                        unratedStr.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.colorPrimaryDark)), 0, unratedStr.length(), 0);
-//                        spannableStringBuilder.append(key+ " .................... " + unratedStr);
-//                    }
-
+                    if(virusInfo.getResult().contains("clean")){
+                        cleanSiteCount++;
+                    }else if(virusInfo.getResult().contains("unrated")){
+                        unratedSiteCount++;
+                    }else{
+                        maliciousCount++;
+                    }
 
                     sbResult.append(key + ".......... " + virusInfo.getResult()).append("\n");
 
                 }
 
-//                tvScanResult.setText(spannableStringBuilder, TextView.BufferType.SPANNABLE);
                   tvScanResult.setText(sbResult.toString());
+
+
+                if(maliciousCount > 0){
+
+                    MaliciousDialog maliciousDialog = new MaliciousDialog();
+                    maliciousDialog.showDialog(ScanUrl.this,"Malicious URL",
+                            Integer.toString(maliciousCount) + "/" + Integer.toString(scans.size()) + " vendors flagged this URL as malicious");
+
+                }else{
+
+                    BenignDialog benignDialog = new BenignDialog();
+                    benignDialog.showDialog(ScanUrl.this,"Benign URL");
+
+                }
 
             }
 
-
-
         } catch (APIKeyNotFoundException ex) {
-            System.err.println("API Key not found! " + ex.getMessage());
-            Toast.makeText(this,ex.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"API Key not found! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (UnsupportedEncodingException ex) {
-            System.err.println("Unsupported Encoding Format!" + ex.getMessage());
-            Toast.makeText(this,ex.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Unsupported Encoding Format!" + ex.getMessage(),Toast.LENGTH_SHORT).show();
 
         } catch (UnauthorizedAccessException ex) {
-            System.err.println("Invalid API Key " + ex.getMessage());
-            Toast.makeText(this,ex.getMessage(),Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this,"Invalid API Key " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (Exception ex) {
-            System.err.println("Something Bad Happened! " + ex.getMessage());
-            Toast.makeText(this,ex.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Something Bad Happened! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //benign and malicious dialog result
+    public class BenignDialog{
+        public void showDialog(Activity activity,String msg){
+            final Dialog dialog = new Dialog(activity);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.safe_url_dialog);
+
+            TextView textViewMessage = (TextView) dialog.findViewById(R.id.text_dialog);
+            textViewMessage.setText(msg);
+
+            Button dialogOkButton  = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            dialogOkButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+
+        }
+    }
+
+    public class MaliciousDialog{
+        public void showDialog(Activity activity,String msg,String count){
+            final Dialog dialog = new Dialog(activity);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.malicious_url_dialog);
+
+            TextView textViewMessage = (TextView) dialog.findViewById(R.id.text_dialog);
+            textViewMessage.setText(msg);
+
+            TextView textViewCount = (TextView) dialog.findViewById(R.id.text_dialog2);
+            textViewCount.setText(count);
+
+            Button dialogOkButton  = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            dialogOkButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
 
         }
     }
