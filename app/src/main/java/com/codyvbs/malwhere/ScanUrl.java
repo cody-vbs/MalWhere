@@ -44,7 +44,9 @@ import com.kanishka.virustotalv2.VirusTotalConfig;
 import com.kanishka.virustotalv2.VirustotalPublicV2;
 import com.kanishka.virustotalv2.VirustotalPublicV2Impl;
 
-import org.w3c.dom.Text;
+import org.imaginativeworld.oopsnointernet.callbacks.ConnectionCallback;
+import org.imaginativeworld.oopsnointernet.dialogs.pendulum.DialogPropertiesPendulum;
+import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPendulum;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -104,10 +106,15 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         //Configure Google Client
         configureGoogleClient();
 
-        //strict mode policy
+        //check active connection
+        new CheckConnectionClass().checkConnection(this,getLifecycle());
 
+        //strict mode policy
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        //check active connection
+        new CheckConnectionClass().checkConnection(this,getLifecycle());
 
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -307,7 +314,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                 }else{
 
                     BenignDialog benignDialog = new BenignDialog();
-                    benignDialog.showDialog(ScanUrl.this,"Benign URL");
+                    benignDialog.showDialog(ScanUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
 
                 }
 
@@ -327,7 +334,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     //benign and malicious dialog result
     public class BenignDialog{
-        public void showDialog(Activity activity,String msg){
+        public void showDialog(Activity activity,String msg, String msg2){
             final Dialog dialog = new Dialog(activity);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setCancelable(false);
@@ -335,6 +342,9 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
             TextView textViewMessage = (TextView) dialog.findViewById(R.id.text_dialog);
             textViewMessage.setText(msg);
+
+            TextView textViewMessage2 = (TextView)dialog.findViewById(R.id.text_dialog2);
+            textViewMessage2.setText(msg2);
 
             Button dialogOkButton  = (Button) dialog.findViewById(R.id.btn_dialog_ok);
             dialogOkButton.setOnClickListener(new View.OnClickListener() {
@@ -373,6 +383,39 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
             dialog.show();
 
         }
+    }
+
+    public void checkConnection(){
+        // No Internet Dialog: Pendulum
+        NoInternetDialogPendulum.Builder builder = new NoInternetDialogPendulum.Builder(
+                this,
+                getLifecycle()
+        );
+
+        DialogPropertiesPendulum properties = builder.getDialogProperties();
+
+        properties.setConnectionCallback(new ConnectionCallback() { // Optional
+            @Override
+            public void hasActiveConnection(boolean hasActiveConnection) {
+                // ...
+            }
+        });
+
+        properties.setCancelable(false);
+        properties.setNoInternetConnectionTitle("No Internet");
+        properties.setNoInternetConnectionMessage("Check your Internet connection and try again");
+        properties.setShowInternetOnButtons(true);
+        properties.setPleaseTurnOnText("Please turn on");
+        properties.setWifiOnButtonText("Wifi");
+        properties.setMobileDataOnButtonText("Mobile data");
+
+        properties.setOnAirplaneModeTitle("No Internet");
+        properties.setOnAirplaneModeMessage("You have turned on the airplane mode.");
+        properties.setPleaseTurnOffText("Please turn off");
+        properties.setAirplaneModeOffButtonText("Airplane mode");
+        properties.setShowAirplaneModeOffButtons(true);
+
+        builder.build();
     }
 
 }

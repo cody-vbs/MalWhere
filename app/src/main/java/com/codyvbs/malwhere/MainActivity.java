@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -39,7 +38,6 @@ import com.linkedin.urls.Url;
 import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
@@ -98,6 +96,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Configure Google Client
         configureGoogleClient();
+
+        //check active connection
+        new CheckConnectionClass().checkConnection(this,getLifecycle());
 
         fabCheck.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -451,11 +452,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
-
-
-
-
-
 
 
 }

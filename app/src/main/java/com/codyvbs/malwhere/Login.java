@@ -25,6 +25,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.kanishka.virustotalv2.VirusTotalConfig;
 
+import org.imaginativeworld.oopsnointernet.callbacks.ConnectionCallback;
+import org.imaginativeworld.oopsnointernet.dialogs.pendulum.DialogPropertiesPendulum;
+import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPendulum;
+
 public class Login extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
@@ -53,6 +57,9 @@ public class Login extends AppCompatActivity {
 
         // Configure Google Client
         configureGoogleClient();
+
+        //check active connection
+        new CheckConnectionClass().checkConnection(this,getLifecycle());
 
         VirusTotalConfig.getConfigInstance().getVirusTotalAPIKey();
     }
