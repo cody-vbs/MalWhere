@@ -2,6 +2,8 @@ package com.codyvbs.malwhere;
 
 public class Adapter {
     private static String detected_URL;
+    public static final String urlShortenerDomain [] = {"bit.ly","tinyurl"};
+
 
     public static String getDetected_URL() {
         return detected_URL;

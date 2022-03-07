@@ -11,14 +11,20 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -311,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             progressDialog = new ProgressDialog(MainActivity.this);
             progressDialog.setMessage("Recognizing text");
+            progressDialog.setCancelable(false);
             progressDialog.show();
         }
 
@@ -349,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         protected void onPreExecute() {
             progressDialog2 = new ProgressDialog(MainActivity.this);
             progressDialog2.setMessage("Detecting URL");
+            progressDialog2.setCancelable(false);
             progressDialog2.show();
         }
 
@@ -401,16 +409,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void recogURLDialog(String detectedURL){
+    private void shortenURLWarnDialog(String URL){
+
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+
+        SpannableString str = new SpannableString(URL);
+        str.setSpan(new ForegroundColorSpan(Color.BLUE),0,str.length(),0);
+        spannableStringBuilder.append("It looks like " );
+        spannableStringBuilder.append(str);
+        spannableStringBuilder.append(" is a shortened URL. We will automatically extract the long URL click ");
+        spannableStringBuilder.append("\" Unshorten URL \"");
+
+
         final EditText recogURL  = new EditText(this);
-        recogURL.setText(detectedURL);
+        recogURL.setText(spannableStringBuilder,
+                EditText.BufferType.SPANNABLE);
 
         new AlertDialog.Builder(this)
-                .setTitle("Detected URL")
+                .setTitle("Shortened URL")
                 .setView(recogURL)
                 .setIcon(R.drawable.app_icon)
                 .setCancelable(false)
-                .setPositiveButton("Analyze", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Unshorten URL", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String mURLs = recogURL.getText().toString();
@@ -444,13 +464,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             for (Url url: found){
                 myURl = url.getFullUrl();
             }
-            //set the url value to adapter
-            new Adapter().setDetected_URL(myURl);
 
-            //open new activity
-            startActivity(new Intent(MainActivity.this,ScanUrl.class));
+
+            if(isURLShorten(new Adapter().urlShortenerDomain,myURl) == true){
+
+
+                //display short url detected warn dialog
+                shortenURLWarnDialog(myURl);
+
+            }else{
+                //set the url value to adapter
+                new Adapter().setDetected_URL(myURl);
+                //open new activity
+                startActivity(new Intent(MainActivity.this,ScanUrl.class));
+            }
+
+
+
         }
 
+    }
+
+    //check if url is shorten url
+    private boolean isURLShorten(String [] domainArr,String url){
+
+        for(String domain: domainArr){
+            if(url.startsWith("https://" + domain) || url.startsWith("http://" + domain)){
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
