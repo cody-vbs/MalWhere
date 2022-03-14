@@ -28,34 +28,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
-            <ImageView
-                android:id="@+id/img_preview"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="500dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/bkg_add_img"
-                android:adjustViewBounds="true"
-                android:layout_marginTop="15dp"/>
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_check"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center"
-                android:elevation="4dp"
-                android:backgroundTint="@color/colorAccent"
-                android:src="@drawable/ic_baseline_check_24"
-                android:layout_margin="16dp" />
+                android:text="Learn Activity"
+                android:textColor="@color/white"/>
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right"
-                android:elevation="4dp"
-                android:backgroundTint="@color/colorPrimaryDark"
-                android:src="@drawable/ic_baseline_add_24"
-                android:layout_margin="16dp" />
+
 
         </FrameLayout>
 

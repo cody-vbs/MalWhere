@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,6 +27,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -46,6 +54,9 @@ import com.linkedin.urls.detection.UrlDetectorOptions;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -58,11 +69,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawer;
     private static final String TAG = "MainActivity";
 
-
-    GoogleSignInClient googleSignInClient;
-
-    private FirebaseAuth firebaseAuth;
-
     FloatingActionButton fabCheck,fabAdd;
     ImageView preview;
 
@@ -70,12 +76,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     Uri imageUri;
 
-    ProgressDialog progressDialog,progressDialog2;
+    ProgressDialog progressDialog,progressDialog2,progressDialog3;
 
 
     StringBuilder recognizedText;
 
-    String longTxt;
+    String longTxt,shortURL;
+
+    GoogleConfig googleConfig = new GoogleConfig();
 
 
     @Override
@@ -94,6 +102,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabAdd = findViewById(R.id.fab_add);
         preview = findViewById(R.id.img_preview);
 
+        //set the current item
+        navigationView.getMenu().getItem(0).setChecked(true);
+
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -101,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         //Configure Google Client
-        configureGoogleClient();
+        googleConfig.configureGoogleClient(MainActivity.this);
 
         //check active connection
         new CheckConnectionClass().checkConnection(this,getLifecycle());
@@ -144,65 +155,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.nav_imagescan:
+                //current activity
+                break;
+            case R.id.nav_reports:
+                finish();
+                startActivity(new Intent(MainActivity.this,Reports.class));
+                break;
+            case R.id.nav_learn:
+                finish();
+                startActivity(new Intent(MainActivity.this,Learn.class));
+                break;
             case R.id.nav_signout:
-                signOut();
+                googleConfig.signOut(MainActivity.this);
+                break;
 
         }
         return true;
     }
 
-    private void configureGoogleClient() {
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                // for the requestIdToken, this is in the values.xml file that
-                // is generated from your google-services.json
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        // Build a GoogleSignInClient with the options specified by gso.
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
-        // Initialize Firebase Auth
-        firebaseAuth = FirebaseAuth.getInstance();
-    }
 
-    private void signOut() {
-
-        new AlertDialog.Builder(this)
-                .setTitle("Exit App")
-                .setMessage("Are you sure you want to end your current session?")
-                .setPositiveButton("Sign Out", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        firebaseSignout();
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        }).setIcon(android.R.drawable.ic_dialog_alert).show();
-
-    }
-
-    private void firebaseSignout(){
-        // Firebase sign out
-        firebaseAuth.signOut();
-        // Google sign out
-        googleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                    // Google Sign In failed, update UI appropriately
-                    Log.w(TAG, "Signed out of google");
-                    startActivity(new Intent(MainActivity.this,Login.class));
-                    finish();
-                }
-        });
-    }
 
     //request permission methods
-
-
     private void requestPermissionOpenCam(){
         String[] perms = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
         if (EasyPermissions.hasPermissions(this, perms)) {
@@ -310,6 +283,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @SuppressLint("StaticFieldLeak")
     class RecognizeTextTask extends AsyncTask<Void,Void,Void>{
 
         @Override
@@ -350,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
     class RecogURLTask extends  AsyncTask<Void,Void,Void>{
 
         @Override
@@ -380,6 +355,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             //call the extract url method
             extractUrl(longTxt);
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class UnshortenURLTask extends  AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog3 = new ProgressDialog(MainActivity.this);
+            progressDialog3.setMessage("Processing...");
+            progressDialog3.setCancelable(false);
+            progressDialog3.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            extractLongUrl(shortURL);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(progressDialog3 != null && progressDialog3.isShowing()){
+                progressDialog3.dismiss();
+            }
+
+
         }
     }
 
@@ -433,7 +443,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setPositiveButton("Unshorten URL", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String mURLs = recogURL.getText().toString();
+                            shortURL = URL;
+                            new UnshortenURLTask().execute();
                     }
                 }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -496,6 +507,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return false;
     }
+
+    private void extractLongUrl(String urlShorten){
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String myReq = "https://unshort.herokuapp.com/api/?url=" + urlShorten;
+
+        // prepare the Request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        try {
+                            //assign the long url to setter and getter
+                            new Adapter().setDetected_URL(response.getString("longUrl"));
+                            //open new activity scan class
+                            startActivity(new Intent(MainActivity.this,ScanUrl.class));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        );
+
+        // add it to the RequestQueue
+        queue.add(getRequest);
+    }
+
 
 
 }

@@ -55,10 +55,6 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     private DrawerLayout drawer;
     private static final String TAG = "ScanUrlActivity";
 
-    GoogleSignInClient googleSignInClient;
-
-    private FirebaseAuth firebaseAuth;
-
     EditText editTextUrl;
     TextView tv1,tv2,tvScanResult;
     Button scanBtn,retryBtn;
@@ -66,6 +62,10 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     ProgressDialog progressDialog;
 
     int cleanSiteCount = 0, unratedSiteCount = 0,maliciousCount = 0;
+
+    StringBuilder sbResult;
+
+    GoogleConfig googleConfig = new GoogleConfig();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +94,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         editTextUrl.setText(new Adapter().getDetected_URL());
 
         //set custom font for textviews
-        TextView [] textViewArray = {tv1,tv2,tvScanResult};
+        TextView [] textViewArray = {tvScanResult};
         EditText [] editTextsArray = {editTextUrl};
         setTextViewFontFamily(textViewArray,editTextsArray);
 
@@ -104,7 +104,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         toggle.syncState();
 
         //Configure Google Client
-        configureGoogleClient();
+        googleConfig.configureGoogleClient(this);
 
         //check active connection
         new CheckConnectionClass().checkConnection(this,getLifecycle());
@@ -137,62 +137,23 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.nav_imagescan:
+                startActivity(new Intent(ScanUrl.this,MainActivity.class));
+                break;
+            case R.id.nav_reports:
+                finish();
+                startActivity(new Intent(ScanUrl.this,Reports.class));
+                break;
+            case R.id.nav_learn:
+                finish();
+                startActivity(new Intent(ScanUrl.this,Learn.class));
+                break;
             case R.id.nav_signout:
-                signOut();
+                googleConfig.signOut(this);
+                break;
 
         }
         return true;
     }
-
-    private void configureGoogleClient() {
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                // for the requestIdToken, this is in the values.xml file that
-                // is generated from your google-services.json
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        // Build a GoogleSignInClient with the options specified by gso.
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
-        // Initialize Firebase Auth
-        firebaseAuth = FirebaseAuth.getInstance();
-    }
-
-    private void signOut() {
-
-        new AlertDialog.Builder(this)
-                .setTitle("Exit App")
-                .setMessage("Are you sure you want to end your current session?")
-                .setPositiveButton("Sign Out", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        firebaseSignout();
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        }).setIcon(android.R.drawable.ic_dialog_alert).show();
-
-    }
-
-    private void firebaseSignout(){
-        // Firebase sign out
-        firebaseAuth.signOut();
-        // Google sign out
-        googleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // Google Sign In failed, update UI appropriately
-                        Log.w(TAG, "Signed out of google");
-                        startActivity(new Intent(ScanUrl.this,Login.class));
-                        finish();
-                    }
-                });
-    }
-
     private void setTextViewFontFamily(TextView [] tvs,EditText [] editxts){
         Typeface customFont = ResourcesCompat.getFont(this,R.font.robotobold);
 
@@ -282,7 +243,8 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                     continue;
                 }
 
-                StringBuilder sbResult = new StringBuilder();
+                sbResult = new StringBuilder();
+
                 Map<String, VirusScanInfo> scans = report.getScans();
 
                 SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
