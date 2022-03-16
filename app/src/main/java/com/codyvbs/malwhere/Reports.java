@@ -9,14 +9,23 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.jaredrummler.materialspinner.MaterialSpinner;
 
 public class Reports extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private static final String TAG = "ReportsActivity";
 
     GoogleConfig googleConfig = new GoogleConfig();
+
+    ImageView urlImage;
+    Button submitBtn;
+    MaterialSpinner categorySpinner;
+    EditText description;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +39,14 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        urlImage = findViewById(R.id.image_photo);
+        submitBtn = findViewById(R.id.submit);
+        categorySpinner = findViewById(R.id.categorySpinner);
+        description = findViewById(R.id.description);
+
+        //initialize spinner items
+        categorySpinner.setItems("Select Category", "Phishing","Malware","N/A");
 
         //set the current item
         navigationView.getMenu().getItem(1).setChecked(true);
