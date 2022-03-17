@@ -70,7 +70,7 @@
                         android:layout_marginTop="6dp"
                         android:layout_marginBottom="6dp"
                         android:gravity="center"
-                        android:text="Sample Text"
+                        android:text="---"
                         android:textSize="12sp"
                         android:textColor="#FFF">
                     </TextView>
@@ -91,7 +91,7 @@
                             android:layout_gravity="center"
                             android:textAlignment="center"
                             android:textColor="#FFF"
-                            android:fontFamily="@font/starduster2" />
+                            android:fontFamily="@font/robotobold" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -107,12 +107,12 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:inputType="textNoSuggestions"
+                            android:inputType="textMultiLine"
                             android:maxLines="1"
                             android:hint="Description (Optional)"
                             android:textColor="#FFF"
+                            android:fontFamily="@font/robotobold"
                             android:paddingStart="5dp"
-                            android:singleLine="true"
                             android:paddingLeft="5dp" />
 
                     </com.google.android.material.textfield.TextInputLayout>

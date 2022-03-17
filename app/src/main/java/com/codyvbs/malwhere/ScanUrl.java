@@ -168,7 +168,6 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     }
     //method for scanning URL using Virus Total API
 
-
     class ScanURLTask extends AsyncTask<Void,Void,Void> {
 
         @Override

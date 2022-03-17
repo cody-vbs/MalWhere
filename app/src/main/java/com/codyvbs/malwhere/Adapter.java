@@ -15,4 +15,5 @@ public class Adapter {
     public static void setDetected_URL(String detected_URL) {
         Adapter.detected_URL = detected_URL;
     }
+
 }
