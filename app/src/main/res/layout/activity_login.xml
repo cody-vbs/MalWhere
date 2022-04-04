@@ -11,23 +11,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="25dp">
+        android:layout_margin="100dp">
 
     <ImageView
         android:id="@+id/img1_login"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="250dp"
         android:src="@drawable/app_icon" />
-
-    <TextView
-        android:id="@+id/tv_login1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textColor="@color/colorAccent"
-        android:gravity="center"
-        android:textSize="24sp"
-        android:layout_below="@+id/img1_login"/>
 
     </LinearLayout>
 
@@ -35,21 +25,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:layout_marginTop="300dp"
+        android:layout_marginTop="400dp"
         android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btn_google"
-        android:layout_width="280dp"
-        android:layout_height="50dp"
-        android:background="@drawable/sign_in_google"/>
+        <Button
+            android:id="@+id/btn_google"
+            android:layout_width="280dp"
+            android:layout_height="55dp"
+            android:background="@drawable/round_btn_trans"
+            android:textColor="@color/white"
+            android:layout_margin="10dp"
+            android:drawableLeft="@drawable/google"
+            android:paddingLeft="15dp"
+            android:text="Sign in with google"/>
 
     <Button
         android:id="@+id/btn_guest"
         android:layout_width="280dp"
         android:layout_height="55dp"
+        android:background="@drawable/round_btn_trans"
+        android:textColor="@color/white"
+        android:layout_margin="10dp"
+        android:drawableLeft="@drawable/guest"
+        android:paddingLeft="15dp"
         android:text="Login as Guest User"/>
 
     </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="© 2022 MalWhere"
+        android:textColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:paddingBottom="10dp"/>
 
 </RelativeLayout>

@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -31,7 +33,7 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
         navigationView.setNavigationItemSelectedListener(this);
 
         //set the current item
-        navigationView.getMenu().getItem(2).setChecked(true);
+        navigationView.getMenu().getItem(3).setChecked(true);
 
         googleConfig.configureGoogleClient(this);
 
@@ -54,6 +56,10 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
                 finish();
                 startActivity(new Intent(Learn.this,MainActivity.class));
                 break;
+            case R.id.nav_texturlscan:
+                finish();
+                startActivity(new Intent(Learn.this,ScanTextUrl.class));
+                break;
             case R.id.nav_reports:
                 finish();
                 startActivity(new Intent(Learn.this,Reports.class));
@@ -68,4 +74,24 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
         }
         return true;
     }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finishAffinity();
+
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        }).setIcon(android.R.drawable.ic_dialog_alert).show();
+    }
+
 }

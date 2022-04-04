@@ -97,7 +97,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         capturedDateTime = findViewById(R.id.capturedDate);
 
         //set the current item
-        navigationView.getMenu().getItem(1).setChecked(true);
+        navigationView.getMenu().getItem(2).setChecked(true);
 
         googleConfig.configureGoogleClient(this);
 
@@ -260,8 +260,8 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
             new AlertDialog.Builder(Reports.this)
                     .setTitle("Success!")
                     .setIcon(R.drawable.app_icon)
-                    .setMessage("Case Number: " + caseNumber + "\n\n" + "Thank you for reporting a suspicious URL you found online.\n"+
-                    "Please give us reasonable time to investigate this URL you found.")
+                    .setMessage("Case Number: " + caseNumber + "\n\n" + "This malicious URL is successfully reported.Please give us 1-10 days to investigate this malicious URL. " +
+                            "Afterwards,the result will be sent to you.\n"+ "Please give us reasonable time to investigate this URL you found.")
                     .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -333,6 +333,10 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                 finish();
                 startActivity(new Intent(Reports.this,MainActivity.class));
                 break;
+            case R.id.nav_texturlscan:
+                finish();
+                startActivity(new Intent(Reports.this,ScanTextUrl.class));
+                break;
             case R.id.nav_reports:
                 //current activity
                 break;
@@ -345,5 +349,24 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
         }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finishAffinity();
+
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        }).setIcon(android.R.drawable.ic_dialog_alert).show();
     }
 }

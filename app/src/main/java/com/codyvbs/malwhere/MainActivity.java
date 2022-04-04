@@ -157,6 +157,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_imagescan:
                 //current activity
                 break;
+            case R.id.nav_texturlscan:
+                finish();
+                startActivity(new Intent(MainActivity.this,ScanTextUrl.class));
+                break;
             case R.id.nav_reports:
                 finish();
                 startActivity(new Intent(MainActivity.this,Reports.class));
@@ -541,6 +545,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // add it to the RequestQueue
         queue.add(getRequest);
+    }
+
+    @Override
+    public void onBackPressed() {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setMessage("Are you sure you want to exit?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finishAffinity();
+
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        }).setIcon(android.R.drawable.ic_dialog_alert).show();
     }
 
 

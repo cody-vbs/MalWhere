@@ -24,8 +24,6 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
 
-
-
         <LinearLayout
             android:id="@+id/linear1"
             android:layout_width="match_parent"
@@ -46,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/linear1"
-            android:text="Detected URL"
+            android:text="Enter a URL to scan"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_margin="10dp"
@@ -63,7 +61,7 @@
             android:textSize="16sp"
             android:fontFamily="@font/roboto"
             android:textAlignment="center"
-            android:text="Detected URL"/>
+            android:hint="Paste your URL here" />
 
         <LinearLayout
             android:id="@+id/linear_btn"
@@ -96,15 +94,15 @@
             android:layout_below="@+id/linear_btn"
             android:layout_margin="10dp"/>
 
-       <TextView
-           android:id="@+id/tvscanResult"
-           android:layout_width="match_parent"
-           android:layout_height="180dp"
-           android:text="..."
-           android:textColor="@color/colorAccent"
-           android:layout_margin="10dp"
-           android:background="@drawable/textview_border"
-           android:scrollbars="vertical"/>
+        <TextView
+            android:id="@+id/tvscanResult"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:text="..."
+            android:textColor="@color/colorAccent"
+            android:layout_margin="10dp"
+            android:background="@drawable/textview_border"
+            android:scrollbars="vertical"/>
 
         <LinearLayout
             android:layout_width="match_parent"

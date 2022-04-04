@@ -28,13 +28,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 import com.kanishka.virustotal.dto.FileScanReport;
 import com.kanishka.virustotal.dto.ScanInfo;
 import com.kanishka.virustotal.dto.VirusScanInfo;
@@ -51,9 +45,11 @@ import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPend
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import de.mateware.snacky.Snacky;
+
+public class ScanTextUrl extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
-    private static final String TAG = "ScanUrlActivity";
+    private static final String TAG = "ScanTextUrlActivity";
 
     EditText editTextUrl;
     TextView tv1,tv2,tvScanResult;
@@ -70,7 +66,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan_url);
+        setContentView(R.layout.activity_scan_text_url);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -86,12 +82,11 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         retryBtn = findViewById(R.id.btn_retry);
         tvScanResult = findViewById(R.id.tvscanResult);
 
+        //set the current item
+        navigationView.getMenu().getItem(1).setChecked(true);
+
         //this will make the textview scrollble
         tvScanResult.setMovementMethod(new ScrollingMovementMethod());
-
-
-        //set the value to edditTextUrl
-        editTextUrl.setText(new Adapter().getDetected_URL());
 
         //set custom font for textviews
         TextView [] textViewArray = {tvScanResult};
@@ -119,37 +114,45 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ScanURLTask().execute();
+                if(editTextUrl.getText().toString().isEmpty()){
+                    Snacky.builder()
+                            .setView(view)
+                            .setTextColor(getResources().getColor(R.color.white))
+                            .setText("No URL Found")
+                            .setIcon(R.drawable.ic_baseline_warning_24)
+                            .warning()
+                            .show();
+                }else{
+                    new ScanTextUrl.ScanURLTask().execute();
+                }
+
             }
         });
 
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ScanUrl.this,MainActivity.class));
-                finish();
+                reset();
             }
         });
-
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()){
             case R.id.nav_imagescan:
-                startActivity(new Intent(ScanUrl.this,MainActivity.class));
+                startActivity(new Intent(ScanTextUrl.this,MainActivity.class));
                 break;
             case R.id.nav_texturlscan:
-                finish();
-                startActivity(new Intent(ScanUrl.this,ScanTextUrl.class));
+                // current activity
                 break;
             case R.id.nav_reports:
                 finish();
-                startActivity(new Intent(ScanUrl.this,Reports.class));
+                startActivity(new Intent(ScanTextUrl.this,Reports.class));
                 break;
             case R.id.nav_learn:
                 finish();
-                startActivity(new Intent(ScanUrl.this,Learn.class));
+                startActivity(new Intent(ScanTextUrl.this,Learn.class));
                 break;
             case R.id.nav_signout:
                 googleConfig.signOut(this);
@@ -170,13 +173,14 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         }
 
     }
+
     //method for scanning URL using Virus Total API
 
     class ScanURLTask extends AsyncTask<Void,Void,Void> {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = new ProgressDialog(ScanUrl.this);
+            progressDialog = new ProgressDialog(ScanTextUrl.this);
             progressDialog.setMessage("Analyzing URL");
             progressDialog.show();
         }
@@ -267,19 +271,19 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
                 }
 
-                  tvScanResult.setText(sbResult.toString());
+                tvScanResult.setText(sbResult.toString());
 
 
                 if(maliciousCount > 0){
 
                     MaliciousDialog maliciousDialog = new MaliciousDialog();
-                    maliciousDialog.showDialog(ScanUrl.this,"Malicious URL",
+                    maliciousDialog.showDialog(ScanTextUrl.this,"Malicious URL",
                             Integer.toString(maliciousCount) + "/" + Integer.toString(scans.size()) + " vendors flagged this URL as malicious");
 
                 }else{
 
                     BenignDialog benignDialog = new BenignDialog();
-                    benignDialog.showDialog(ScanUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
+                    benignDialog.showDialog(ScanTextUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
 
                 }
 
@@ -299,7 +303,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     //benign and malicious dialog result
     public class BenignDialog{
-        public void showDialog(Activity activity,String msg, String msg2){
+        public void showDialog(Activity activity, String msg, String msg2){
             final Dialog dialog = new Dialog(activity);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setCancelable(false);
@@ -400,6 +404,11 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
             }
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
+    }
+
+    private void reset(){
+        editTextUrl.setText("");
+        tvScanResult.setText("...");
     }
 
 }
