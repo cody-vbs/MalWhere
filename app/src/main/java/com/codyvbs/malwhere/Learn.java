@@ -9,8 +9,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -19,6 +21,8 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
     private static final String TAG = "LearnActivity";
 
     GoogleConfig googleConfig = new GoogleConfig();
+
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,9 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
         navigationView.getMenu().getItem(3).setChecked(true);
 
         googleConfig.configureGoogleClient(this);
+
+        //sharedpreference
+        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
@@ -61,8 +68,21 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
                 startActivity(new Intent(Learn.this,ScanTextUrl.class));
                 break;
             case R.id.nav_reports:
-                finish();
-                startActivity(new Intent(Learn.this,Reports.class));
+                //check if the current user is a guest user
+                try{
+                    if(sharedPreferences.getString("guest_user","").isEmpty()){
+                        finish();
+                        startActivity(new Intent(Learn.this,Reports.class));
+                    }else{
+                        finish();
+                        startActivity(new Intent(Learn.this,ReportGuest.class));
+                    }
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(Learn.this,e.toString(),Toast.LENGTH_SHORT).show();
+                }
+
                 break;
             case R.id.nav_learn:
                 //current activity

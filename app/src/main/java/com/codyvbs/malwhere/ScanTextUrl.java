@@ -13,6 +13,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -63,6 +64,8 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
     GoogleConfig googleConfig = new GoogleConfig();
 
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +87,9 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
         //set the current item
         navigationView.getMenu().getItem(1).setChecked(true);
+
+        //sharedpreference
+        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
         //this will make the textview scrollble
         tvScanResult.setMovementMethod(new ScrollingMovementMethod());
@@ -147,8 +153,21 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 // current activity
                 break;
             case R.id.nav_reports:
-                finish();
-                startActivity(new Intent(ScanTextUrl.this,Reports.class));
+                //check if the current user is a guest user
+                try{
+                    if(sharedPreferences.getString("guest_user","").isEmpty()){
+                        finish();
+                        startActivity(new Intent(ScanTextUrl.this,Reports.class));
+                    }else{
+                        finish();
+                        startActivity(new Intent(ScanTextUrl.this,ReportGuest.class));
+                    }
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(ScanTextUrl.this,e.toString(),Toast.LENGTH_SHORT).show();
+                }
+
                 break;
             case R.id.nav_learn:
                 finish();

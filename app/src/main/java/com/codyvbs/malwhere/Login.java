@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +30,8 @@ import org.imaginativeworld.oopsnointernet.callbacks.ConnectionCallback;
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.DialogPropertiesPendulum;
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPendulum;
 
+import java.util.Random;
+
 public class Login extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
@@ -39,7 +42,9 @@ public class Login extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
 
     //components
-    Button google_sign_in;
+    Button google_sign_in,login_guest;
+
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,21 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         google_sign_in = findViewById(R.id.btn_google);
+        login_guest = findViewById(R.id.btn_guest);
+
+        editor = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE).edit();
+
+        login_guest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editor.putString("guest_user",generateGuestUser());
+                editor.apply();
+
+                finish();
+                startActivity(new Intent(Login.this, MainActivity.class));
+
+            }
+        });
 
         google_sign_in.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +142,12 @@ public class Login extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = firebaseAuth.getCurrentUser();
                             Log.d(TAG, "signInWithCredential:success: currentUser: " + user.getEmail());
+
+                            //store email and name in sharedpreference
+                            editor.putString("user_email",user.getEmail());
+                            editor.putString("user_display_name",user.getDisplayName());
+                            editor.apply();
+
                             showToastMessage("Welcome back " + user.getDisplayName());
                             launchMainActivity(user);
                         } else {
@@ -141,6 +167,20 @@ public class Login extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
             finish();
         }
+    }
+
+    //method for generating random guest username
+    private String generateGuestUser(){
+        char [] numArr = "0123456789".toCharArray();
+        Random rand = new Random();
+        StringBuilder sb  = new StringBuilder();
+
+        for (int x = 0; x<5; x++){
+            sb.append(numArr[rand.nextInt(numArr.length)]);
+        }
+
+        return "guest" + sb.toString();
+
     }
 
 }

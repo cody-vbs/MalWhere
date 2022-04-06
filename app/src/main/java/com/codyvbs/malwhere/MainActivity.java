@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -20,6 +21,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -85,6 +87,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     GoogleConfig googleConfig = new GoogleConfig();
 
+    SharedPreferences sharedPreferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +109,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //set the current item
         navigationView.getMenu().getItem(0).setChecked(true);
 
+        //sharedpreference
+        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf, MODE_PRIVATE);
+
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -116,6 +123,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //check active connection
         new CheckConnectionClass().checkConnection(this,getLifecycle());
+
+        //toast guest
+        //Toast.makeText(MainActivity.this,sharedPreferences.getString("guest_user",null),Toast.LENGTH_SHORT).show();
 
         fabCheck.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,8 +172,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startActivity(new Intent(MainActivity.this,ScanTextUrl.class));
                 break;
             case R.id.nav_reports:
-                finish();
-                startActivity(new Intent(MainActivity.this,Reports.class));
+
+                //check if the current user is a guest user
+                try{
+                    if(sharedPreferences.getString("guest_user","").isEmpty()){
+                        finish();
+                        startActivity(new Intent(MainActivity.this,Reports.class));
+                    }else{
+                        finish();
+                        startActivity(new Intent(MainActivity.this,ReportGuest.class));
+                    }
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this,e.toString(),Toast.LENGTH_SHORT).show();
+                }
+
+
                 break;
             case R.id.nav_learn:
                 finish();
@@ -171,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.nav_signout:
                 googleConfig.signOut(MainActivity.this);
+                sharedPreferences.edit().clear().commit();
                 break;
-
         }
         return true;
     }

@@ -9,22 +9,23 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.AsyncNotedAppOp;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Patterns;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -37,15 +38,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import android.util.Base64;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -57,9 +53,10 @@ import de.mateware.snacky.Snacky;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class Reports extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener, EasyPermissions.PermissionCallbacks {
+public class ReportGuest extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, EasyPermissions.PermissionCallbacks {
+
     private DrawerLayout drawer;
-    private static final String TAG = "ReportsActivity";
+    private static final String TAG = "ReportGuestActivity";
 
     private static final String URL = "http://192.168.1.4/MalWhere/submit_report.php";
 
@@ -68,7 +65,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
     ImageView urlImage;
     Button submitBtn;
     MaterialSpinner categorySpinner;
-    EditText description;
+    EditText description,contactEmail;
     FloatingActionButton fabAddImage;
     TextView capturedDateTime;
 
@@ -82,8 +79,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reports);
-
+        setContentView(R.layout.activity_report_guest);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -96,6 +92,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         submitBtn = findViewById(R.id.submit);
         categorySpinner = findViewById(R.id.categorySpinner);
         description = findViewById(R.id.description);
+        contactEmail = findViewById(R.id.contact_email);
         fabAddImage = findViewById(R.id.fab_add);
         capturedDateTime = findViewById(R.id.capturedDate);
 
@@ -110,7 +107,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         initCategorySpinnerItems();
 
         TextView tvsArr [] = {capturedDateTime};
-        EditText editTextArr []= {description};
+        EditText editTextArr []= {description,contactEmail};
 
         MaterialSpinner materialSpinnerArr[] = {categorySpinner};
 
@@ -134,7 +131,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
-                        .start(Reports.this);
+                        .start(ReportGuest.this);
             }
         });
 
@@ -144,7 +141,6 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                 validate();
             }
         });
-
     }
 
     //request permission methods
@@ -194,8 +190,8 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                     urlImage.setImageBitmap(imageBitmap);
 
                     //get the captured time
-                   timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-                   capturedDateTime.setText("Captured on: " + timeStamp);
+                    timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
+                    capturedDateTime.setText("Captured on: " + timeStamp);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -222,27 +218,44 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
     //method for input validation
 
-    private void validate(){
-        if(categorySpinner.getText().toString().equalsIgnoreCase("Select Category")){
+    private void validate() {
+
+
+
+        if (categorySpinner.getText().toString().equalsIgnoreCase("Select Category")) {
             Snacky.builder()
                     .setView(getWindow().getDecorView().getRootView())
                     .setTextColor(getResources().getColor(R.color.white))
                     .setText("Please select a category!")
                     .warning()
                     .show();
+        } else if (contactEmail.getText().toString().isEmpty()) {
+            Snacky.builder()
+                    .setView(getWindow().getDecorView().getRootView())
+                    .setTextColor(getResources().getColor(R.color.white))
+                    .setText("Please enter your contact email address !")
+                    .warning()
+                    .show();
+        }else if(!Patterns.EMAIL_ADDRESS.matcher(contactEmail.getText().toString()).matches()){
+            Snacky.builder()
+                    .setView(getWindow().getDecorView().getRootView())
+                    .setTextColor(getResources().getColor(R.color.white))
+                    .setText("Please enter a valid email!")
+                    .warning()
+                    .show();
         }else{
             caseNumber = generateReportCaseNumber();
-            new SubmitReportTask().execute();
+            new ReportGuest.SubmitReportTask().execute();
         }
     }
 
     @SuppressLint("StaticFieldLeak")
-    class SubmitReportTask extends AsyncTask<Void,Void,Void>{
+    class SubmitReportTask extends AsyncTask<Void,Void,Void> {
 
         @Override
         protected void onPreExecute() {
 
-            progressDialog = new ProgressDialog(Reports.this);
+            progressDialog = new ProgressDialog(ReportGuest.this);
             progressDialog.setMessage("Processing report...");
             progressDialog.setCancelable(false);
             progressDialog.show();
@@ -263,7 +276,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                 progressDialog.dismiss();
             }
 
-            new AlertDialog.Builder(Reports.this)
+            new AlertDialog.Builder(ReportGuest.this)
                     .setTitle("Success!")
                     .setIcon(R.drawable.app_icon)
                     .setMessage("Case Number: " + caseNumber + "\n\n" + "This malicious URL is successfully reported.Please give us 1-10 days to investigate this malicious URL. " +
@@ -274,8 +287,9 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                             //clear all fields
                             urlImage.setImageDrawable(getResources().getDrawable(R.drawable.bkg_add_img));
                             initCategorySpinnerItems();
-                            description.setText("Description (Optional)");
+                            description.setText("");
                             capturedDateTime.setText("---");
+                            contactEmail.setText("");
                         }
                     }).show();
 
@@ -300,17 +314,18 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                 String imgdata=imgToString(imageBitmap);
                 String category = categorySpinner.getText().toString();
                 String desc = description.getText().toString();
+                String emailGuest = contactEmail.getText().toString();
                 parms.put("imageurl",imgdata);
                 parms.put("category",category);
                 parms.put("description",desc);
                 parms.put("caseNum",caseNumber);
-                parms.put("email",sharedPreferences.getString("user_email",""));
-                parms.put("name",sharedPreferences.getString("user_display_name",""));
+                parms.put("email",emailGuest);
+                parms.put("name",sharedPreferences.getString("guest_user",""));
                 return parms;
 
             }
         };
-        RequestQueue rq= Volley.newRequestQueue(Reports.this);
+        RequestQueue rq= Volley.newRequestQueue(ReportGuest.this);
         rq.add(stringRequest);
     }
 
@@ -339,20 +354,20 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         switch (menuItem.getItemId()){
             case R.id.nav_imagescan:
                 finish();
-                startActivity(new Intent(Reports.this,MainActivity.class));
+                startActivity(new Intent(ReportGuest.this,MainActivity.class));
                 break;
             case R.id.nav_texturlscan:
                 finish();
-                startActivity(new Intent(Reports.this,ScanTextUrl.class));
+                startActivity(new Intent(ReportGuest.this,ScanTextUrl.class));
                 break;
             case R.id.nav_reports:
                 //current activity
                 break;
             case R.id.nav_learn:
-                startActivity(new Intent(Reports.this,Learn.class));
+                startActivity(new Intent(ReportGuest.this,Learn.class));
                 break;
             case R.id.nav_signout:
-                googleConfig.signOut(Reports.this);
+                googleConfig.signOut(ReportGuest.this);
                 break;
 
         }

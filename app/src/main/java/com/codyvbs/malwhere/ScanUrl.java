@@ -13,6 +13,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -67,6 +68,8 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     GoogleConfig googleConfig = new GoogleConfig();
 
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +92,8 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         //this will make the textview scrollble
         tvScanResult.setMovementMethod(new ScrollingMovementMethod());
 
+        //sharedpreference
+        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
         //set the value to edditTextUrl
         editTextUrl.setText(new Adapter().getDetected_URL());
@@ -144,8 +149,21 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                 startActivity(new Intent(ScanUrl.this,ScanTextUrl.class));
                 break;
             case R.id.nav_reports:
-                finish();
-                startActivity(new Intent(ScanUrl.this,Reports.class));
+                //check if the current user is a guest user
+                try{
+                    if(sharedPreferences.getString("guest_user","").isEmpty()){
+                        finish();
+                        startActivity(new Intent(ScanUrl.this,Reports.class));
+                    }else{
+                        finish();
+                        startActivity(new Intent(ScanUrl.this,ReportGuest.class));
+                    }
+
+                }catch(Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(ScanUrl.this,e.toString(),Toast.LENGTH_SHORT).show();
+                }
+
                 break;
             case R.id.nav_learn:
                 finish();

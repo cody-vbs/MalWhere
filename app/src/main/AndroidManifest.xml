@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ScanTextUrl"></activity>
+        <activity android:name=".ReportGuest"></activity>
+        <activity android:name=".ScanTextUrl" />
         <activity android:name=".Reports" />
         <activity android:name=".Learn" />
         <activity android:name=".ScanUrl" />

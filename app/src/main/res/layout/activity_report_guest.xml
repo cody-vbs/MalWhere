@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="@color/bkg_color"
-    tools:context=".Reports">
+    tools:context=".ReportGuest">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -117,6 +117,28 @@
 
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/contacteEmailError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="#FFF"
+                        android:layout_marginTop="5dp">
+
+                        <EditText
+                            android:id="@+id/contact_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:hint="Contact Email Address"
+                            android:textColor="#FFF"
+                            android:fontFamily="@font/robotobold"
+                            android:paddingStart="5dp"
+                            android:paddingLeft="5dp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
 
                     <Button
                         android:id="@+id/submit"
@@ -140,9 +162,6 @@
                     android:layout_margin="16dp" />
 
             </androidx.cardview.widget.CardView>
-
-
-
 
         </FrameLayout>
 
