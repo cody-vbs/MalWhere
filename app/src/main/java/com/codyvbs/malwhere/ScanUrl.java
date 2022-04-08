@@ -171,6 +171,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                 break;
             case R.id.nav_signout:
                 googleConfig.signOut(this);
+                sharedPreferences.edit().clear().commit();
                 break;
 
         }

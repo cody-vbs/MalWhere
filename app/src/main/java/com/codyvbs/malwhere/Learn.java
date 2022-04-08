@@ -89,6 +89,7 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
                 break;
             case R.id.nav_signout:
                 googleConfig.signOut(Learn.this);
+                sharedPreferences.edit().clear().commit();
                 break;
 
         }

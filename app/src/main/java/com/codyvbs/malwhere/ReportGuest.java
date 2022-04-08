@@ -368,6 +368,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
                 break;
             case R.id.nav_signout:
                 googleConfig.signOut(ReportGuest.this);
+                sharedPreferences.edit().clear().commit();
                 break;
 
         }
