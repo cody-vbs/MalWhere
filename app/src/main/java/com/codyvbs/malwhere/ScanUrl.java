@@ -29,6 +29,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -50,6 +57,9 @@ import org.imaginativeworld.oopsnointernet.dialogs.pendulum.DialogPropertiesPend
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPendulum;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -70,6 +80,9 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     SharedPreferences sharedPreferences;
 
+    private static final String URL = "http://192.168.1.4/MalWhere/scan_logs.php";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +94,9 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //set the current item
+        navigationView.getMenu().getItem(0).setChecked(true);
 
         editTextUrl = findViewById(R.id.edittext_url);
         tv1 = findViewById(R.id.tv1);
@@ -217,8 +233,6 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
             getUrlReport(editTextUrl.getText().toString());
 
-
-
         }
     }
 
@@ -295,10 +309,36 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                     maliciousDialog.showDialog(ScanUrl.this,"Malicious URL",
                             Integer.toString(maliciousCount) + "/" + Integer.toString(scans.size()) + " vendors flagged this URL as malicious");
 
+                    //save log to server
+                    String user = "";
+                    String scanResult = "Malicious";
+                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+                    if(sharedPreferences.getString("guest_user","").isEmpty()){
+                        user = sharedPreferences.getString("user_display_name","");
+                    }else{
+                        user = sharedPreferences.getString("guest_user","");
+                    }
+
+                    saveLog(user,scanResult,timeStamp);
+
                 }else{
 
                     BenignDialog benignDialog = new BenignDialog();
                     benignDialog.showDialog(ScanUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
+
+                    //save log to server
+                    String user = "";
+                    String scanResult = "Benign";
+                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+                    if(sharedPreferences.getString("guest_user","").isEmpty()){
+                        user = sharedPreferences.getString("user_display_name","");
+                    }else{
+                        user = sharedPreferences.getString("guest_user","");
+                    }
+
+                    saveLog(user,scanResult,timeStamp);
 
                 }
 
@@ -419,6 +459,33 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
             }
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
+    }
+
+    private void saveLog(String user, String scanResult, String timestamp){
+        StringRequest stringRequest=new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> parms=new HashMap<String, String>();
+                parms.put("user",user);
+                parms.put("scanResult",scanResult);
+                parms.put("timestamp",timestamp);
+
+                return parms;
+
+            }
+        };
+        RequestQueue rq= Volley.newRequestQueue(ScanUrl.this);
+        rq.add(stringRequest);
     }
 
 }

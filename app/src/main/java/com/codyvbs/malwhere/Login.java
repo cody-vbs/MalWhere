@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -45,6 +46,8 @@ public class Login extends AppCompatActivity {
     Button google_sign_in,login_guest;
 
     SharedPreferences.Editor editor;
+
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +126,7 @@ public class Login extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 showToastMessage("Signed in successfully");
+                dialog();
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
@@ -147,6 +151,10 @@ public class Login extends AppCompatActivity {
                             editor.putString("user_email",user.getEmail());
                             editor.putString("user_display_name",user.getDisplayName());
                             editor.apply();
+
+                            if(dialog.isShowing()){
+                                dialog.dismiss();
+                            }
 
                             showToastMessage("Welcome back " + user.getDisplayName());
                             launchMainActivity(user);
@@ -181,6 +189,13 @@ public class Login extends AppCompatActivity {
 
         return "guest" + sb.toString();
 
+    }
+
+    private void dialog(){
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Signing in...");
+        dialog.setCancelable(false);
+        dialog.show();
     }
 
 }

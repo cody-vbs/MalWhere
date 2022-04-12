@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,12 +15,15 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +38,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
@@ -49,6 +54,8 @@ import com.kanishka.virustotalv2.VirustotalPublicV2Impl;
 import org.imaginativeworld.oopsnointernet.callbacks.ConnectionCallback;
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.DialogPropertiesPendulum;
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPendulum;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -69,9 +76,11 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
     TextView tv1,tv2,tvScanResult;
     Button scanBtn,retryBtn;
 
-    ProgressDialog progressDialog;
+    ProgressDialog progressDialog,progressDialog2;
 
     int cleanSiteCount = 0, unratedSiteCount = 0,maliciousCount = 0;
+
+    String longURL;
 
     StringBuilder sbResult;
 
@@ -142,7 +151,15 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                             .warning()
                             .show();
                 }else{
-                    new ScanTextUrl.ScanURLTask().execute();
+                    String urlTxt = editTextUrl.getText().toString();
+                    if(isURLShorten(new Adapter().urlShortenerDomain,urlTxt) == true){
+                        extractLongUrl(editTextUrl.getText().toString());
+                        new UnshortenURLTask().execute();
+                    }else{
+                        new ScanTextUrl.ScanURLTask().execute();
+
+                    }
+
                 }
 
             }
@@ -210,6 +227,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
     //method for scanning URL using Virus Total API
 
     class ScanURLTask extends AsyncTask<Void,Void,Void> {
+        String myURl = editTextUrl.getText().toString();
 
         @Override
         protected void onPreExecute() {
@@ -222,7 +240,14 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         protected Void doInBackground(Void... voids) {
 
             //call the extract url scan report method
-            scanUrl(editTextUrl.getText().toString());
+
+            if(
+                isURLShorten(new Adapter().urlShortenerDomain,myURl) == true){
+                scanUrl(new Adapter().getFinalLongURL());
+            }else{
+                scanUrl(myURl);
+            }
+
 
             return null;
         }
@@ -233,7 +258,11 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 progressDialog.dismiss();
             }
 
-            getUrlReport(editTextUrl.getText().toString());
+            if(isURLShorten(new Adapter().urlShortenerDomain,myURl) == true){
+                getUrlReport(new Adapter().getFinalLongURL());
+            }else{
+                getUrlReport(myURl);
+            }
 
 
 
@@ -499,4 +528,118 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         rq.add(stringRequest);
     }
 
-}
+    //check if url is shorten url
+    private boolean isURLShorten(String [] domainArr,String url){
+
+        for(String domain: domainArr){
+            if(url.startsWith("https://" + domain) || url.startsWith("http://" + domain)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void extractLongUrl(String urlShorten){
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String myReq = "https://unshort.herokuapp.com/api/?url=" + urlShorten;
+
+        // prepare the Request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        //assign the long url to setter and getter
+                        try {
+                            new Adapter().setFinalLongURL(response.getString("longUrl"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        );
+
+        // add it to the RequestQueue
+        queue.add(getRequest);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class UnshortenURLTask extends  AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog2 = new ProgressDialog(ScanTextUrl.this);
+            progressDialog2.setMessage("Processing...");
+            progressDialog2.setCancelable(false);
+            progressDialog2.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            extractLongUrl(editTextUrl.getText().toString());
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(progressDialog2 != null && progressDialog2.isShowing()){
+                progressDialog2.dismiss();
+            }
+            shortURLWarnDialog(new Adapter().getFinalLongURL());
+            //new ScanURLTask().execute();
+
+        }
+    }
+
+    private void shortURLWarnDialog(String longURL) {
+        String msg = "The URL you entered is a short URL. We extracted the long URL to get the best results. Click continue to start scanning.";
+        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+        SpannableString spannableString = new SpannableString(msg);
+        spannableString.setSpan(new ForegroundColorSpan(Color.BLACK),0,spannableString.length(),0);
+        spannableStringBuilder.append(spannableString);
+
+
+        final EditText recogText = new EditText(this);
+        recogText.setText(spannableStringBuilder, EditText.BufferType.SPANNABLE);
+        recogText.setEnabled(false);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Short URL Detected")
+                .setView(recogText)
+                .setIcon(R.drawable.app_icon)
+                .setCancelable(false)
+                .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                            new ScanURLTask().execute();
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                    reset();
+            }
+        }).show();
+
+    }
+
+
+
+    }
