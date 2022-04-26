@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //request permission methods
     private void requestPermissionOpenCam(){
-        String[] perms = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+        String[] perms = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION};
         if (EasyPermissions.hasPermissions(this, perms)) {
             //permission granted
         } else {

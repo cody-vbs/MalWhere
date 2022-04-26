@@ -4,21 +4,29 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +34,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -53,7 +62,7 @@ import de.mateware.snacky.Snacky;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ReportGuest extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, EasyPermissions.PermissionCallbacks {
+public class ReportGuest extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, EasyPermissions.PermissionCallbacks, LocationListener {
 
     private DrawerLayout drawer;
     private static final String TAG = "ReportGuestActivity";
@@ -70,11 +79,16 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
     TextView capturedDateTime;
 
     Bitmap imageBitmap;
-    String timeStamp,caseNumber;
+    String timeStamp,caseNumber,tempLat,tempLng;
 
     ProgressDialog progressDialog;
 
     SharedPreferences sharedPreferences;
+
+    //location
+    public LocationManager locationManager;
+    public Criteria criteria;
+    public String bestProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +152,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getLocation();
                 validate();
             }
         });
@@ -321,12 +336,73 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
                 parms.put("caseNum",caseNumber);
                 parms.put("email",emailGuest);
                 parms.put("name",sharedPreferences.getString("guest_user",""));
+                parms.put("lat",tempLat);
+                parms.put("lng",tempLng);
                 return parms;
+
 
             }
         };
         RequestQueue rq= Volley.newRequestQueue(ReportGuest.this);
         rq.add(stringRequest);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        //remove location callback:
+        locationManager.removeUpdates(this);
+
+        tempLat = Double.toString(location.getLatitude());
+        tempLng = Double.toString(location.getLongitude());
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    public static boolean isLocationEnabled(Context context) {
+        //...............
+        return true;
+    }
+
+    protected void getLocation() {
+        if (isLocationEnabled(ReportGuest.this)) {
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            criteria = new Criteria();
+            bestProvider = String.valueOf(locationManager.getBestProvider(criteria, true)).toString();
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                return;
+            }
+            Location location = locationManager.getLastKnownLocation(bestProvider);
+            if (location != null) {
+                Log.e("TAG", "GPS is on");
+                tempLat = Double.toString(location.getLatitude());
+                tempLng = Double.toString(location.getLongitude());
+            }
+            else{
+                //This is what you need:
+                locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
+            }
+        }
+        else
+        {
+            //prompt user to enable location....
+            //.................
+        }
     }
 
     //method for generating report case
