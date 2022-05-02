@@ -24,7 +24,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="© 2022 MalWhere"
+        android:text="@string/footer"
         android:textColor="@color/white"
         android:layout_alignParentBottom="true"
         android:gravity="center"

@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -34,6 +35,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -55,6 +57,8 @@ import com.kanishka.virustotalv2.VirustotalPublicV2Impl;
 import org.imaginativeworld.oopsnointernet.callbacks.ConnectionCallback;
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.DialogPropertiesPendulum;
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPendulum;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -140,6 +144,11 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //disable the textfield
+                editTextUrl.setEnabled(false);
+                scanBtn.setEnabled(false);
+
                 new ScanURLTask().execute();
             }
         });
@@ -147,6 +156,10 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //enable the textfield
+                editTextUrl.setEnabled(true);
+                scanBtn.setEnabled(true);
+
                 startActivity(new Intent(ScanUrl.this,MainActivity.class));
                 finish();
             }
@@ -236,6 +249,30 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
+    class PredictUrlModelTask extends  AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
+            predictiveModedl(editTextUrl.getText().toString());
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+
+        }
+    }
+
 
 
     public void scanUrl(String myUrl) {
@@ -300,8 +337,6 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
                 }
 
-                  tvScanResult.setText(sbResult.toString());
-
 
                 if(maliciousCount > 0){
 
@@ -320,26 +355,13 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                         user = sharedPreferences.getString("guest_user","");
                     }
 
+                    tvScanResult.setText(sbResult.toString());
+
                     saveLog(user,scanResult,timeStamp);
 
                 }else{
-
-                    BenignDialog benignDialog = new BenignDialog();
-                    benignDialog.showDialog(ScanUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
-
-                    //save log to server
-                    String user = "";
-                    String scanResult = "Benign";
-                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
-
-                    if(sharedPreferences.getString("guest_user","").isEmpty()){
-                        user = sharedPreferences.getString("user_display_name","");
-                    }else{
-                        user = sharedPreferences.getString("guest_user","");
-                    }
-
-                    saveLog(user,scanResult,timeStamp);
-
+                    //if url is not blacklisted call predict model
+                    new PredictUrlModelTask().execute();
                 }
 
             }
@@ -487,5 +509,86 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         RequestQueue rq= Volley.newRequestQueue(ScanUrl.this);
         rq.add(stringRequest);
     }
+
+    //trained model for lexical feature approach
+
+    private void predictiveModedl(String mUrl){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String myReq = "https://malwhere-model-api.herokuapp.com/?url=" + mUrl;
+
+        // prepare the Request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        //assign the long url to setter and getter
+                        try {
+
+                            //Toast.makeText(ScanTextUrl.this,response.getString("prediction"),Toast.LENGTH_SHORT).show();
+                            if(response.getString("prediction").equalsIgnoreCase("[0]")){
+                                BenignDialog benignDialog = new BenignDialog();
+                                benignDialog.showDialog(ScanUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
+
+                                //save log to server
+                                String user = "";
+                                String scanResult = "Benign";
+                                String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+
+                                if(sharedPreferences.getString("guest_user","").isEmpty()){
+                                    user = sharedPreferences.getString("user_display_name","");
+                                }else{
+                                    user = sharedPreferences.getString("guest_user","");
+                                }
+
+                                tvScanResult.setText(sbResult.toString());
+
+                                saveLog(user,scanResult,timeStamp);
+                            }else{
+
+                                MaliciousDialog maliciousDialog = new MaliciousDialog();
+                                maliciousDialog.showDialog(ScanUrl.this,"Malicious URL",
+                                        "This URL is flagged as Malicious");
+
+                                //save log to server
+                                String user = "";
+                                String scanResult = "Malicious";
+                                String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+                                if(sharedPreferences.getString("guest_user","").isEmpty()){
+                                    user = sharedPreferences.getString("user_display_name","");
+                                }else{
+                                    user = sharedPreferences.getString("guest_user","");
+                                }
+
+                                tvScanResult.setText(sbResult.toString());
+
+
+                                saveLog(user,scanResult,timeStamp);
+
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        );
+
+        // add it to the RequestQueue
+        queue.add(getRequest);
+    }
+
+
+
 
 }

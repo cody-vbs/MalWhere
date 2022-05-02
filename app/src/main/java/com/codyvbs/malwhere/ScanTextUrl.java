@@ -142,6 +142,10 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //disable the textfield
+                editTextUrl.setEnabled(false);
+                scanBtn.setEnabled(false);
+
                 if(editTextUrl.getText().toString().isEmpty()){
                     Snacky.builder()
                             .setView(view)
@@ -168,6 +172,10 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //enable the textfield
+                editTextUrl.setEnabled(true);
+                scanBtn.setEnabled(true);
+
                 reset();
             }
         });
@@ -333,8 +341,6 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
                 }
 
-                tvScanResult.setText(sbResult.toString());
-
 
                 if(maliciousCount > 0){
 
@@ -353,28 +359,15 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                         user = sharedPreferences.getString("guest_user","");
                     }
 
+                    tvScanResult.setText(sbResult.toString());
+
+
                     saveLog(user,scanResult,timeStamp);
 
 
                 }else{
-
-                    BenignDialog benignDialog = new BenignDialog();
-                    benignDialog.showDialog(ScanTextUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
-
-                    //save log to server
-                    String user = "";
-                    String scanResult = "Benign";
-                    String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
-
-
-                    if(sharedPreferences.getString("guest_user","").isEmpty()){
-                        user = sharedPreferences.getString("user_display_name","");
-                    }else{
-                        user = sharedPreferences.getString("guest_user","");
-                    }
-
-                    saveLog(user,scanResult,timeStamp);
-
+                    //if url is not blacklisted call predict model
+                    new PredictUrlModelTask().execute();
                 }
 
             }
@@ -573,6 +566,38 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         queue.add(getRequest);
     }
 
+
+    @SuppressLint("StaticFieldLeak")
+    class PredictUrlModelTask extends  AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            if(isURLShorten(new Adapter().urlShortenerDomain,editTextUrl.getText().toString()) == true){
+                predictiveModedl(new Adapter().getFinalLongURL());
+            }else{
+                predictiveModedl(editTextUrl.getText().toString());
+            }
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(progressDialog2 != null && progressDialog2.isShowing()){
+                progressDialog2.dismiss();
+            }
+
+
+        }
+    }
+
     @SuppressLint("StaticFieldLeak")
     class UnshortenURLTask extends  AsyncTask<Void,Void,Void>{
 
@@ -638,6 +663,84 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
             }
         }).show();
 
+    }
+
+    //trained model for lexical feature approach
+
+    private void predictiveModedl(String mUrl){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String myReq = "https://malwhere-model-api.herokuapp.com/?url=" + mUrl;
+
+        // prepare the Request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        //assign the long url to setter and getter
+                        try {
+
+                            //Toast.makeText(ScanTextUrl.this,response.getString("prediction"),Toast.LENGTH_SHORT).show();
+                           if(response.getString("prediction").equalsIgnoreCase("[0]")){
+                               BenignDialog benignDialog = new BenignDialog();
+                               benignDialog.showDialog(ScanTextUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
+
+                               //save log to server
+                               String user = "";
+                               String scanResult = "Benign";
+                               String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+
+                               if(sharedPreferences.getString("guest_user","").isEmpty()){
+                                   user = sharedPreferences.getString("user_display_name","");
+                               }else{
+                                   user = sharedPreferences.getString("guest_user","");
+                               }
+
+                               tvScanResult.setText(sbResult.toString());
+
+                               saveLog(user,scanResult,timeStamp);
+                           }else{
+
+                               MaliciousDialog maliciousDialog = new MaliciousDialog();
+                               maliciousDialog.showDialog(ScanTextUrl.this,"Malicious URL",
+                                       "This URL is flagged as Malicious");
+
+                               //save log to server
+                               String user = "";
+                               String scanResult = "Malicious";
+                               String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+                               if(sharedPreferences.getString("guest_user","").isEmpty()){
+                                   user = sharedPreferences.getString("user_display_name","");
+                               }else{
+                                   user = sharedPreferences.getString("guest_user","");
+                               }
+
+                               tvScanResult.setText(sbResult.toString());
+
+
+                               saveLog(user,scanResult,timeStamp);
+
+                           }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        );
+
+        // add it to the RequestQueue
+        queue.add(getRequest);
     }
 
 

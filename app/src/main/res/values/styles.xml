@@ -22,6 +22,8 @@
         <!-- Background color when SELECTED -->
         <item name="colorControlHighlight">@color/colorPrimaryDark</item>
 
+        <item name="android:listDivider">@color/colorAccent</item>
+
     </style>
 
 </resources>
