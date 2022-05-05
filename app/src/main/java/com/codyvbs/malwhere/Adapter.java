@@ -4,6 +4,7 @@ public class Adapter {
     private static String detected_URL;
     private static String finalLongURL;
     public static String MyGuestPresf = "GUEST_USER";
+    public static String MainUserPresf = "MAIN_USER";
     public static final String urlShortenerDomain [] = {"bit.ly","tinyurl","is.gd","bit.do","cutt.ly","tinyurl.com","s.id",
             "t.co","gg.gg","rebrand.ly","abre.ai","short.io","linkly","clickmeter","pixelme","blink","SmartURL","soo.gd","tiny.cc","clkim.com","t2mio.com",
     "tiny.ie","www.shorturl.at","yourls.org","www.musicjet.com","adf.ly","goog.gl","ow.ly","buff.ly","mcaf.ee","su.pr","polr","budurl.co","polrproject.org",

@@ -41,9 +41,19 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.text.FirebaseVisionText;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 import com.jaredrummler.materialspinner.MaterialSpinner;
+import com.linkedin.urls.Url;
+import com.linkedin.urls.detection.UrlDetector;
+import com.linkedin.urls.detection.UrlDetectorOptions;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -82,15 +92,22 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
     Bitmap imageBitmap;
     String timeStamp,caseNumber,tempLat,tempLng;
+    String longTxt;
 
     ProgressDialog progressDialog;
 
-    SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences,guestSharedPreference;
+
+    StringBuilder recognizedText;
+    Uri imageUri;
 
     //location
     public LocationManager locationManager;
     public Criteria criteria;
     public String bestProvider;
+
+    String myURl = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +135,8 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         googleConfig.configureGoogleClient(this);
 
         //sharedpreference
-        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(new Adapter().MainUserPresf,MODE_PRIVATE);
+        guestSharedPreference = getSharedPreferences(new Adapter().MyGuestPresf, MODE_PRIVATE);
 
         initCategorySpinnerItems();
 
@@ -206,6 +224,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if(resultCode == RESULT_OK){
                 Uri resultUri = result.getUri();
+                imageUri = result.getUri();
                 try {
                     imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),resultUri);
                     urlImage.setImageBitmap(imageBitmap);
@@ -249,7 +268,8 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                     .show();
         }else{
             caseNumber = generateReportCaseNumber();
-            new SubmitReportTask().execute();
+            new RecognizeTextTask().execute();
+            disableInputFields();
         }
     }
 
@@ -325,6 +345,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                 parms.put("name",sharedPreferences.getString("user_display_name",""));
                 parms.put("lat",tempLat);
                 parms.put("lng",tempLng);
+                parms.put("textUrl",myURl);
                 return parms;
 
             }
@@ -456,4 +477,174 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
             }
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
     }
+
+
+    //text recognition process
+    private void detectText() throws IOException {
+        FirebaseVisionImage firebaseVisionImage = FirebaseVisionImage.fromFilePath(Reports.this,imageUri);
+        FirebaseVisionTextRecognizer firebaseVisionTextRecognizer = FirebaseVision.getInstance()
+                .getOnDeviceTextRecognizer();
+
+        Task<FirebaseVisionText> result =
+                firebaseVisionTextRecognizer.processImage(firebaseVisionImage)
+                        .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                            @Override
+                            public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                                // Task completed successfully
+                                // ...
+                                processText(firebaseVisionText);
+                            }
+                        })
+                        .addOnFailureListener(
+                                new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // Task failed with an exception
+                                        // ...
+                                    }
+                                });
+    }
+
+    private void processText(FirebaseVisionText text){
+        List<FirebaseVisionText.TextBlock> blocks = text.getTextBlocks();
+
+        if(blocks.size() ==0){
+            Snacky.builder()
+                    .setText("No Text")
+                    .setIcon(R.drawable.ic_error_outline_black_24dp)
+                    .info()
+                    .show();
+
+            return;
+        }
+
+        recognizedText = new StringBuilder();
+
+        for (FirebaseVisionText.TextBlock block: text.getTextBlocks()){
+            recognizedText.append(block.getText()).append("\n");
+        }
+
+        longTxt = recognizedText.toString();
+
+        new RecogURLTask().execute();
+
+
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class RecognizeTextTask extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+
+            progressDialog = new ProgressDialog(Reports.this);
+            progressDialog.setMessage("Processing...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try{
+                Thread.sleep(5000);
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if(progressDialog != null && progressDialog.isShowing()){
+                progressDialog.dismiss();
+            }
+
+            try {
+                detectText();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void extractUrl (String longTxt){
+        UrlDetector urlDetector = new UrlDetector(longTxt, UrlDetectorOptions.Default);
+        List<Url> found = urlDetector.detect();
+
+        if(found.size() == 0){
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Unable to process the report")
+                    .setMessage("No URLs found on the image. Please try again")
+                    .setCancelable(false)
+                    .setIcon(R.drawable.app_icon)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            reset();
+                            enableInputFields();
+
+                        }
+                    }).show();
+        }else{
+            for (Url url: found){
+                myURl = url.getFullUrl();
+            }
+
+            new SubmitReportTask().execute();
+
+
+        }
+
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class RecogURLTask extends  AsyncTask<Void,Void,Void>{
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+            //call the extract url method
+            extractUrl(longTxt);
+
+        }
+    }
+
+    private void disableInputFields(){
+        categorySpinner.setEnabled(false);
+        description.setEnabled(false);
+        submitBtn.setEnabled(false);
+    }
+
+    private void enableInputFields(){
+        categorySpinner.setEnabled(true);
+        description.setEnabled(true);
+        submitBtn.setEnabled(true);
+    }
+
+    private void reset(){
+        urlImage.setImageDrawable(getResources().getDrawable(R.drawable.bkg_add_img));
+        initCategorySpinnerItems();
+        description.setText("");
+        capturedDateTime.setText("---");
+
+    }
+
 }

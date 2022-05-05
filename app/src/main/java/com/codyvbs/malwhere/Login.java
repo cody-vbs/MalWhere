@@ -45,7 +45,7 @@ public class Login extends AppCompatActivity {
     //components
     Button google_sign_in,login_guest;
 
-    SharedPreferences.Editor editor;
+    SharedPreferences.Editor editor,guestEditor;
 
     ProgressDialog dialog;
 
@@ -57,13 +57,14 @@ public class Login extends AppCompatActivity {
         google_sign_in = findViewById(R.id.btn_google);
         login_guest = findViewById(R.id.btn_guest);
 
-        editor = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE).edit();
+        editor = getSharedPreferences(new Adapter().MainUserPresf,MODE_PRIVATE).edit();
+        guestEditor = getSharedPreferences(new Adapter().MyGuestPresf, MODE_PRIVATE).edit();
 
         login_guest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editor.putString("guest_user",generateGuestUser());
-                editor.apply();
+                guestEditor.putString("guest_user",generateGuestUser());
+                guestEditor.apply();
 
                 finish();
                 startActivity(new Intent(Login.this, MainActivity.class));
@@ -110,6 +111,8 @@ public class Login extends AppCompatActivity {
            //if the access token is active redirect user to the main page
             startActivity(new Intent(this, MainActivity.class));
             finish();
+        }else{
+            guestEditor.clear().commit();
         }
     }
     public void signInToGoogle() {
@@ -197,5 +200,7 @@ public class Login extends AppCompatActivity {
         dialog.setCancelable(false);
         dialog.show();
     }
+
+
 
 }

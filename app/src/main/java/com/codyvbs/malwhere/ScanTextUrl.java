@@ -86,7 +86,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
     GoogleConfig googleConfig = new GoogleConfig();
 
-    SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences,guestSharedPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +111,8 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         navigationView.getMenu().getItem(1).setChecked(true);
 
         //sharedpreference
-        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(new Adapter().MainUserPresf,MODE_PRIVATE);
+        guestSharedPreference = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
         //this will make the textview scrollble
         tvScanResult.setMovementMethod(new ScrollingMovementMethod());
@@ -742,7 +743,6 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         // add it to the RequestQueue
         queue.add(getRequest);
     }
-
 
 
     }

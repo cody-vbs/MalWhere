@@ -82,7 +82,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     GoogleConfig googleConfig = new GoogleConfig();
 
-    SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences,guestSharedPreference;
 
     private static final String URL = "http://192.168.1.4/MalWhere/scan_logs.php";
 
@@ -113,7 +113,8 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         tvScanResult.setMovementMethod(new ScrollingMovementMethod());
 
         //sharedpreference
-        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(new Adapter().MainUserPresf,MODE_PRIVATE);
+        guestSharedPreference = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
         //set the value to edditTextUrl
         editTextUrl.setText(new Adapter().getDetected_URL());
@@ -587,8 +588,6 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         // add it to the RequestQueue
         queue.add(getRequest);
     }
-
-
 
 
 }

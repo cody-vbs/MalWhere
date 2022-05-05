@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     GoogleConfig googleConfig = new GoogleConfig();
 
-    SharedPreferences sharedPreferences;
+    SharedPreferences sharedPreferences, guestSharedPreference;
 
 
     @Override
@@ -110,7 +110,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.getMenu().getItem(0).setChecked(true);
 
         //sharedpreference
-        sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf, MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(new Adapter().MainUserPresf, MODE_PRIVATE);
+        guestSharedPreference = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 //check if the current user is a guest user
                 try{
-                    if(sharedPreferences.getString("guest_user","").isEmpty()){
+                    if(guestSharedPreference.getString("guest_user","").isEmpty()){
                         finish();
                         startActivity(new Intent(MainActivity.this,Reports.class));
                     }else{
@@ -590,7 +591,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
     }
-
-
 
 }
