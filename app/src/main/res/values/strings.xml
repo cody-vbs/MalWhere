@@ -6,4 +6,9 @@
     <string name="tagline">\" Make Sure It\'s Safe \"</string>
     <string name="virus_total_key">0332bfc39c9ccbed656e5c29f2821e957b2c6a589c2f00887dc788ebe6a4f35a</string>
     <string name="footer">© 2022 MalWhere</string>
+    <string name="app_desc">MalWhere is a free malicious link detector, created for research and educational purpose only. Unauthorized reproduction and
+    commercialized distribution of this program, or any part of it , may result in severe civil or criminal penalties due to certain  third-party software
+    copyright.</string>
+
+    <string name="predictive_model">https://malwhere-model-api3-v2.herokuapp.com/?url=</string>
 </resources>

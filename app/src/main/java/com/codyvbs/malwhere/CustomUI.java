@@ -23,6 +23,15 @@ public class CustomUI {
 
     }
 
+    public void setTextViewFontOnluFamily(Activity activity, TextView[] tvs){
+        Typeface customFont = ResourcesCompat.getFont(activity,R.font.robotobold);
+
+        for(int x = 0; x<tvs.length ;x++){
+            tvs[x].setTypeface(customFont);
+        }
+
+    }
+
     public void setSpinnerFont(Activity activity, MaterialSpinner materialSpinner[]){
         Typeface customFont = ResourcesCompat.getFont(activity,R.font.robotobold);
 

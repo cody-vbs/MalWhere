@@ -86,7 +86,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
 
     ImageView urlImage;
     Button submitBtn;
-    MaterialSpinner categorySpinner;
+    MaterialSpinner categorySpinner,sourceSpinner;
     EditText description,contactEmail;
     FloatingActionButton fabAddImage;
     TextView capturedDateTime;
@@ -106,6 +106,8 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
 
     String myURl = "";
 
+    boolean hasImage = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +124,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
         urlImage = findViewById(R.id.image_photo);
         submitBtn = findViewById(R.id.submit);
         categorySpinner = findViewById(R.id.categorySpinner);
-        description = findViewById(R.id.description);
+        sourceSpinner = findViewById(R.id.sourceSpinner);
         contactEmail = findViewById(R.id.contact_email);
         fabAddImage = findViewById(R.id.fab_add);
         capturedDateTime = findViewById(R.id.capturedDate);
@@ -137,11 +139,12 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
         guestSharedPreference = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
         initCategorySpinnerItems();
+        initSourceSpinnerItems();
 
         TextView tvsArr [] = {capturedDateTime};
-        EditText editTextArr []= {description,contactEmail};
+        EditText editTextArr []= {contactEmail};
 
-        MaterialSpinner materialSpinnerArr[] = {categorySpinner};
+        MaterialSpinner materialSpinnerArr[] = {categorySpinner,sourceSpinner};
 
         //set custom font UI
         new CustomUI().setTextViewFontFamily(this,tvsArr,editTextArr);
@@ -219,6 +222,8 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
             if(resultCode == RESULT_OK){
                 Uri resultUri = result.getUri();
                 imageUri = result.getUri();
+
+                hasImage = true;
                 try {
                     imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),resultUri);
                     urlImage.setImageBitmap(imageBitmap);
@@ -255,7 +260,6 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
     private void validate() {
 
 
-
         if (categorySpinner.getText().toString().equalsIgnoreCase("Select Category")) {
             Snacky.builder()
                     .setView(getWindow().getDecorView().getRootView())
@@ -263,7 +267,15 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
                     .setText("Please select a category!")
                     .warning()
                     .show();
-        } else if (contactEmail.getText().toString().isEmpty()) {
+        }else if(sourceSpinner.getText().toString().equalsIgnoreCase("Select Source (Where the URL is found)")){
+            Snacky.builder()
+                    .setView(getWindow().getDecorView().getRootView())
+                    .setTextColor(getResources().getColor(R.color.white))
+                    .setText("Please select a source!")
+                    .warning()
+                    .show();
+
+        }else if (contactEmail.getText().toString().isEmpty()) {
             Snacky.builder()
                     .setView(getWindow().getDecorView().getRootView())
                     .setTextColor(getResources().getColor(R.color.white))
@@ -345,11 +357,11 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
                 Map<String,String> parms=new HashMap<String, String>();
                 String imgdata=imgToString(imageBitmap);
                 String category = categorySpinner.getText().toString();
-                String desc = description.getText().toString();
+                String url_source = sourceSpinner.getText().toString();
                 String emailGuest = contactEmail.getText().toString();
                 parms.put("imageurl",imgdata);
                 parms.put("category",category);
-                parms.put("description",desc);
+                parms.put("url_source",url_source);
                 parms.put("caseNum",caseNumber);
                 parms.put("email",emailGuest);
                 parms.put("name",guestSharedPreference.getString("guest_user",""));
@@ -440,6 +452,11 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
     private void initCategorySpinnerItems(){
         //initialize spinner items
         categorySpinner.setItems("Select Category", "Phishing","Malware","N/A");
+    }
+
+    private void initSourceSpinnerItems(){
+        //initialize spinner items
+        sourceSpinner.setItems("Select Source (Where the URL is found)","Facebook","Twitter","Instagram","Messenger","Others");
     }
 
 
@@ -640,23 +657,24 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
     private void disableInputFields(){
         categorySpinner.setEnabled(false);
         contactEmail.setEnabled(false);
-        description.setEnabled(false);
+        sourceSpinner.setEnabled(false);
         submitBtn.setEnabled(false);
     }
 
     private void enableInputFields(){
         categorySpinner.setEnabled(true);
         contactEmail.setEnabled(true);
-        description.setEnabled(true);
+        sourceSpinner.setEnabled(true);
         submitBtn.setEnabled(true);
     }
 
     private void reset(){
         urlImage.setImageDrawable(getResources().getDrawable(R.drawable.bkg_add_img));
         initCategorySpinnerItems();
-        description.setText("");
+        initCategorySpinnerItems();
         capturedDateTime.setText("---");
         contactEmail.setText("");
+        hasImage = false;
 
     }
 

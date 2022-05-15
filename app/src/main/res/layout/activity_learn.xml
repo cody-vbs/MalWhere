@@ -28,11 +28,92 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
+
+            <LinearLayout
+                android:id="@+id/linear1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="200dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/app_icon"
+                    android:layout_gravity="center_horizontal" />
+
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Learn Activity"
+                android:text="App Version: malwhere-app3-version2"
                 android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="UI Version: 1.0.0"
+                    android:textColor="@color/white"/>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Got any feedbacks? Let us know your concerns and suggestions"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="20dp"/>
+
+                <Button
+                    android:id="@+id/feedbackBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Write Feedback"
+                    android:layout_gravity="center"
+                    android:layout_margin="10dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="End User License Agreement"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="10dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Third-party Software"
+                    android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_desc"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="30dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="MalWhere Team"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="55dp"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sydney Ricafort"
+                    android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Leah Juarez"
+                    android:textColor="@color/white"/>
+
+
+
+
+            </LinearLayout>
+
 
 
 

@@ -85,7 +85,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
     ImageView urlImage;
     Button submitBtn;
-    MaterialSpinner categorySpinner;
+    MaterialSpinner categorySpinner,sourceSpinner;
     EditText description;
     FloatingActionButton fabAddImage;
     TextView capturedDateTime;
@@ -108,6 +108,8 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
     String myURl = "";
 
+    boolean hasImage = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +127,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         urlImage = findViewById(R.id.image_photo);
         submitBtn = findViewById(R.id.submit);
         categorySpinner = findViewById(R.id.categorySpinner);
-        description = findViewById(R.id.description);
+        sourceSpinner = findViewById(R.id.sourceSpinner);
         fabAddImage = findViewById(R.id.fab_add);
         capturedDateTime = findViewById(R.id.capturedDate);
 
@@ -139,14 +141,14 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         guestSharedPreference = getSharedPreferences(new Adapter().MyGuestPresf, MODE_PRIVATE);
 
         initCategorySpinnerItems();
+        initSourceSpinnerItems();
 
         TextView tvsArr [] = {capturedDateTime};
-        EditText editTextArr []= {description};
 
-        MaterialSpinner materialSpinnerArr[] = {categorySpinner};
+        MaterialSpinner materialSpinnerArr[] = {categorySpinner,sourceSpinner};
 
         //set custom font UI
-        new CustomUI().setTextViewFontFamily(this,tvsArr,editTextArr);
+        new CustomUI().setTextViewFontOnluFamily(this,tvsArr);
         new CustomUI().setSpinnerFont(this,materialSpinnerArr);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
@@ -225,6 +227,9 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
             if(resultCode == RESULT_OK){
                 Uri resultUri = result.getUri();
                 imageUri = result.getUri();
+
+                hasImage = true;
+
                 try {
                     imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(),resultUri);
                     urlImage.setImageBitmap(imageBitmap);
@@ -258,14 +263,31 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
     //method for input validation
 
-    private void validate(){
-        if(categorySpinner.getText().toString().equalsIgnoreCase("Select Category")){
+    private void validate() {
+
+        if(hasImage == false) {
+            Snacky.builder()
+                    .setView(getWindow().getDecorView().getRootView())
+                    .setTextColor(getResources().getColor(R.color.white))
+                    .setText("Please add an image!")
+                    .warning()
+                    .show();
+
+        }else if (categorySpinner.getText().toString().equalsIgnoreCase("Select Category")) {
             Snacky.builder()
                     .setView(getWindow().getDecorView().getRootView())
                     .setTextColor(getResources().getColor(R.color.white))
                     .setText("Please select a category!")
                     .warning()
                     .show();
+        }else if(sourceSpinner.getText().toString().equalsIgnoreCase("Select Source (Where the URL is found)")){
+            Snacky.builder()
+                    .setView(getWindow().getDecorView().getRootView())
+                    .setTextColor(getResources().getColor(R.color.white))
+                    .setText("Please select a source!")
+                    .warning()
+                    .show();
+
         }else{
             caseNumber = generateReportCaseNumber();
             new RecognizeTextTask().execute();
@@ -309,10 +331,8 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             //clear all fields
-                            urlImage.setImageDrawable(getResources().getDrawable(R.drawable.bkg_add_img));
-                            initCategorySpinnerItems();
-                            description.setText("Description (Optional)");
-                            capturedDateTime.setText("---");
+                            reset();
+                            enableInputFields();
                         }
                     }).show();
 
@@ -336,10 +356,10 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                 Map<String,String> parms=new HashMap<String, String>();
                 String imgdata=imgToString(imageBitmap);
                 String category = categorySpinner.getText().toString();
-                String desc = description.getText().toString();
+                String url_source = sourceSpinner.getText().toString();
                 parms.put("imageurl",imgdata);
                 parms.put("category",category);
-                parms.put("description",desc);
+                parms.put("url_source",url_source);
                 parms.put("caseNum",caseNumber);
                 parms.put("email",sharedPreferences.getString("user_email",""));
                 parms.put("name",sharedPreferences.getString("user_display_name",""));
@@ -430,6 +450,11 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
     private void initCategorySpinnerItems(){
         //initialize spinner items
         categorySpinner.setItems("Select Category", "Phishing","Malware","N/A");
+    }
+
+    private void initSourceSpinnerItems(){
+        //initialize spinner items
+        sourceSpinner.setItems("Select Source (Where the URL is found)","Facebook","Twitter","Instagram","Messenger","Others");
     }
 
 
@@ -629,21 +654,22 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
     private void disableInputFields(){
         categorySpinner.setEnabled(false);
-        description.setEnabled(false);
+        sourceSpinner.setEnabled(false);
         submitBtn.setEnabled(false);
     }
 
     private void enableInputFields(){
         categorySpinner.setEnabled(true);
-        description.setEnabled(true);
+        sourceSpinner.setEnabled(true);
         submitBtn.setEnabled(true);
     }
 
     private void reset(){
         urlImage.setImageDrawable(getResources().getDrawable(R.drawable.bkg_add_img));
         initCategorySpinnerItems();
-        description.setText("");
+        initSourceSpinnerItems();
         capturedDateTime.setText("---");
+        hasImage = false;
 
     }
 

@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
@@ -23,6 +25,8 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
     GoogleConfig googleConfig = new GoogleConfig();
 
     SharedPreferences sharedPreferences;
+
+    Button feedbackBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,15 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
 
         //sharedpreference
         sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
+
+        feedbackBtn = findViewById(R.id.feedbackBtn);
+
+        feedbackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createFeedback();
+            }
+        });
 
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
@@ -113,6 +126,15 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
 
             }
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
+    }
+
+    private void createFeedback(){
+        Intent feedbackEmail = new Intent(Intent.ACTION_SEND);
+
+        feedbackEmail.setType("text/email");
+        feedbackEmail.putExtra(Intent.EXTRA_EMAIL, new String[] {"malwhereteam@gmail.com"});
+        feedbackEmail.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
+        startActivity(Intent.createChooser(feedbackEmail, "Send Feedback:"));
     }
 
 }

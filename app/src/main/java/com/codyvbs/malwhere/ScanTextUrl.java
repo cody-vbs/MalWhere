@@ -670,7 +670,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
     private void predictiveModedl(String mUrl){
         RequestQueue queue = Volley.newRequestQueue(this);
-        String myReq = "https://malwhere-model-api.herokuapp.com/?url=" + mUrl;
+        String myReq = getString(R.string.predictive_model) + mUrl;
 
         // prepare the Request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,

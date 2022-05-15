@@ -96,24 +96,23 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/descError"
+                        android:id="@+id/sourceError"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="#FFF"
                         android:layout_marginTop="5dp">
 
-                        <EditText
-                            android:id="@+id/description"
+                        <com.jaredrummler.materialspinner.MaterialSpinner
+                            android:id="@+id/sourceSpinner"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:inputType="textMultiLine"
-                            android:maxLines="1"
-                            android:hint="Description (Optional)"
+                            app:ms_background_color="@color/colorPrimary"
+                            android:text="Select Source (Where the URL is found)"
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:textAlignment="center"
                             android:textColor="#FFF"
-                            android:fontFamily="@font/robotobold"
-                            android:paddingStart="5dp"
-                            android:paddingLeft="5dp" />
+                            android:fontFamily="@font/robotobold" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
