@@ -77,7 +77,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout drawer;
     private static final String TAG = "ReportGuestActivity";
 
-    private static final String URL = "http://192.168.1.4/MalWhere/submit_report.php";
+    private static final String URL = new Adapter().SUBMIT_REPORT_URL_ONLINE;
 
     GoogleConfig googleConfig = new GoogleConfig();
 
@@ -451,12 +451,12 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
 
     private void initCategorySpinnerItems(){
         //initialize spinner items
-        categorySpinner.setItems("Select Category", "Phishing","Malware","N/A");
+        categorySpinner.setItems("Select Category", "Phishing","Malware","Scam","Spam", "Defacement", "I don't know");
     }
 
     private void initSourceSpinnerItems(){
         //initialize spinner items
-        sourceSpinner.setItems("Select Source (Where the URL is found)","Facebook","Twitter","Instagram","Messenger","Others");
+        sourceSpinner.setItems("Select Source (Where the URL is found)","Facebook","Twitter","Instagram","Messenger","WhatsApp","Reddit","Other website");
     }
 
 

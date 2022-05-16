@@ -11,4 +11,6 @@
     copyright.</string>
 
     <string name="predictive_model">https://malwhere-model-api3-v2.herokuapp.com/?url=</string>
+    <string name="SUBMIT_REPORT_URL_LOCAL">http://192.168.1.4/MalWhere/submit_report.php</string>
+    <string name="SUBMIT_REPORT_URL_ONLINE">https://malwhereapp.com/submit_report.php</string>
 </resources>

@@ -10,6 +10,9 @@ public class Adapter {
     "tiny.ie","www.shorturl.at","yourls.org","www.musicjet.com","adf.ly","goog.gl","ow.ly","buff.ly","mcaf.ee","su.pr","polr","budurl.co","polrproject.org",
     "MOOURL.COM","surbl.org","guru99.com","dynomapper.com"};
 
+    public static String SUBMIT_REPORT_URL_ONLINE = "https://malwhereapp.com/submit_report.php";
+    public static String SUBMIT_REPORT_URL_LOCAL = "http://192.168.1.4/MalWhere/submit_report.php";
+
 
     public static String getDetected_URL() {
         return detected_URL;
