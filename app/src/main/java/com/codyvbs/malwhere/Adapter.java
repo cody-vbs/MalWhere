@@ -13,6 +13,9 @@ public class Adapter {
     public static String SUBMIT_REPORT_URL_ONLINE = "https://malwhereapp.com/submit_report.php";
     public static String SUBMIT_REPORT_URL_LOCAL = "http://192.168.1.4/MalWhere/submit_report.php";
 
+    public static String SCAN_LOGS_ONLINE = "https://malwhereapp.com/scan_logs.php";
+    public static String SCAN_LOGS_LOCAL = "http://192.168.1.4/MalWhere/scan_logs.php";
+
 
     public static String getDetected_URL() {
         return detected_URL;

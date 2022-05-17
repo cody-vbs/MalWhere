@@ -113,6 +113,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sharedPreferences = getSharedPreferences(new Adapter().MainUserPresf, MODE_PRIVATE);
         guestSharedPreference = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
+        //request app permissions
+        requestPermissionOpenCam();
+
+
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -151,8 +155,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                requestPermissionOpenCam();
-
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .start(MainActivity.this);

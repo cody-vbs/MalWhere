@@ -84,7 +84,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     SharedPreferences sharedPreferences,guestSharedPreference;
 
-    private static final String URL = "http://192.168.1.4/MalWhere/scan_logs.php";
+    private static final String URL = new Adapter().SCAN_LOGS_ONLINE;
 
 
     @Override

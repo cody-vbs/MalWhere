@@ -48,6 +48,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
@@ -90,6 +91,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
     EditText description,contactEmail;
     FloatingActionButton fabAddImage;
     TextView capturedDateTime;
+    TextInputLayout contactEmailError;
 
     Bitmap imageBitmap;
     String timeStamp,caseNumber,tempLat,tempLng;
@@ -126,6 +128,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
         categorySpinner = findViewById(R.id.categorySpinner);
         sourceSpinner = findViewById(R.id.sourceSpinner);
         contactEmail = findViewById(R.id.contact_email);
+        contactEmailError = findViewById(R.id.contacteEmailError);
         fabAddImage = findViewById(R.id.fab_add);
         capturedDateTime = findViewById(R.id.capturedDate);
 
@@ -143,12 +146,14 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
 
         TextView tvsArr [] = {capturedDateTime};
         EditText editTextArr []= {contactEmail};
+        TextInputLayout tilArr[] = {contactEmailError};
 
         MaterialSpinner materialSpinnerArr[] = {categorySpinner,sourceSpinner};
 
         //set custom font UI
         new CustomUI().setTextViewFontFamily(this,tvsArr,editTextArr);
         new CustomUI().setSpinnerFont(this,materialSpinnerArr);
+        new CustomUI().setTextInputLayoutFont(this,tilArr);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);

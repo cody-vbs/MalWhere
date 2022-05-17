@@ -69,7 +69,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
     private DrawerLayout drawer;
     private static final String TAG = "ScanTextUrlActivity";
 
-    private static final String URL = "http://192.168.1.4/MalWhere/scan_logs.php";
+    private static final String URL = new Adapter().SCAN_LOGS_ONLINE;
 
 
     EditText editTextUrl;

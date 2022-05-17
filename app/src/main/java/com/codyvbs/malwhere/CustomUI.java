@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 
 public class CustomUI {
@@ -28,6 +29,15 @@ public class CustomUI {
 
         for(int x = 0; x<tvs.length ;x++){
             tvs[x].setTypeface(customFont);
+        }
+
+    }
+
+    public void setTextInputLayoutFont(Activity activity, TextInputLayout[] til){
+        Typeface customFont = ResourcesCompat.getFont(activity,R.font.robotobold);
+
+        for(int x = 0; x<til.length ;x++){
+            til[x].setTypeface(customFont);
         }
 
     }
