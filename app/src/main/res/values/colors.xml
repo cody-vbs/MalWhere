@@ -9,4 +9,5 @@
     <color name="green">#008640</color>
     <color name="red">#E13B2D</color>
     <color name="bkg_color">#0E071A</color>
+    <color name="warn">#E7B825</color>
 </resources>

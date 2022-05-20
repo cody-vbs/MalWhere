@@ -1,0 +1,61 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffffff">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/a"
+        android:gravity="center"
+        android:background="@color/warn"
+        android:src="@drawable/ic_baseline_info_24"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/submit_warn_data_privacy"
+        android:textStyle="bold"
+        android:layout_below="@+id/a"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="20dp"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="2dp"
+        android:layout_below="@+id/tvMessage">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Cancel"
+            android:id="@+id/btnCancel"
+            android:layout_marginRight="10dp"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_below="@+id/tvMessageSuccess"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Submit Report"
+            android:id="@+id/btnSubmit"
+            android:backgroundTint="@color/green"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_below="@+id/tvMessageSuccess"
+            android:layout_centerHorizontal="true"
+            android:textColor="#ffffffff" />
+
+    </LinearLayout>
+
+</RelativeLayout>

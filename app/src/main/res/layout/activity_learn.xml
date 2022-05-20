@@ -72,17 +72,13 @@
                     android:layout_margin="10dp"/>
 
                 <TextView
+                    android:id="@+id/dataPrivacy"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="End User License Agreement"
+                    android:text="@string/data_privacy"
                     android:textColor="@color/white"
+                    android:textStyle="bold"
                     android:layout_marginTop="10dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Third-party Software"
-                    android:textColor="@color/white"/>
 
                 <TextView
                     android:layout_width="match_parent"

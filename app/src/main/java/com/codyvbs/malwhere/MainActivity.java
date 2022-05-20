@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View view) {
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
+                        .setActivityTitle("Crop URL")
                         .start(MainActivity.this);
 
             }
@@ -308,9 +309,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recognizedText = new StringBuilder();
 
         for (FirebaseVisionText.TextBlock block: text.getTextBlocks()){
-             recognizedText.append(block.getText()).append("\n");
+             recognizedText.append(block.getText());
         }
-
         recogTextDialog();
 
     }
@@ -434,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(recogText)
                 .setIcon(R.drawable.app_icon)
                 .setCancelable(false)
-                .setPositiveButton("Extract URL", new DialogInterface.OnClickListener() {
+                .setNeutralButton("Extract URL", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         longTxt = recogText.getText().toString();
@@ -442,7 +442,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //execute URL Detection
                         new RecogURLTask().execute();
                     }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                }).setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                new Adapter().setDetected_URL(recogText.getText().toString().replace("\n",""));
+                startActivity(new Intent(MainActivity.this,ScanUrl.class));
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 

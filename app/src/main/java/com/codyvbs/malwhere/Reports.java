@@ -9,8 +9,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AsyncNotedAppOp;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +32,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -289,9 +292,8 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
                     .show();
 
         }else{
-            caseNumber = generateReportCaseNumber();
-            new RecognizeTextTask().execute();
-            disableInputFields();
+            ReportConfirmDialog reportConfirmDialog = new ReportConfirmDialog();
+            reportConfirmDialog.showDialog(this, getResources().getString(R.string.submit_warn_data_privacy));
         }
     }
 
@@ -449,7 +451,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
     private void initCategorySpinnerItems(){
         //initialize spinner items
-        categorySpinner.setItems("Select Category", "Phishing","Malware","Scam","Spam", "Defacement", "I don't know");
+        categorySpinner.setItems("Select Category", "Phishing","Malware","Scam","Spam", "Defacement","Benign","I don't know");
     }
 
     private void initSourceSpinnerItems(){
@@ -671,6 +673,45 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
         capturedDateTime.setText("---");
         hasImage = false;
 
+    }
+
+    public class ReportConfirmDialog {
+
+        public void showDialog(Activity activity, String msg) {
+            final Dialog dialog = new Dialog(activity);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.confirm_report_dialog);
+
+            TextView text = (TextView) dialog.findViewById(R.id.tvMessage);
+            text.setText(msg);
+
+            TextView tvArr[] = {text};
+
+            new CustomUI().setTextViewFontOnluFamily(Reports.this, tvArr);
+
+            Button dialogButton = (Button) dialog.findViewById(R.id.btnCancel);
+            dialogButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
+            Button dialogSubmit = (Button) dialog.findViewById(R.id.btnSubmit);
+            dialogSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    caseNumber = generateReportCaseNumber();
+                    new RecognizeTextTask().execute();
+                    disableInputFields();
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+
+        }
     }
 
 }

@@ -9,8 +9,12 @@
     <string name="app_desc">MalWhere is a free malicious link detector, created for research and educational purpose only. Unauthorized reproduction and
     commercialized distribution of this program, or any part of it , may result in severe civil or criminal penalties due to certain  third-party software
     copyright.</string>
+    <string name="submit_warn_data_privacy">\"By clicking submit report, all information you provided will be preserved as preliminary evidence, to use  for the investigation of the  reported URL .
+        We assure you this report will be sent to the responsible authority and  evidence submitted shall be kept confidential as compliance to the Data Privacy Act of 2012 (RA no. 10173).\"</string>
+    <string name="data_privacy"><a href="#">Data Privacy Policy</a></string>
 
     <string name="predictive_model">https://malwhere-model-api3-v2.herokuapp.com/?url=</string>
     <string name="SUBMIT_REPORT_URL_LOCAL">http://192.168.1.4/MalWhere/submit_report.php</string>
     <string name="SUBMIT_REPORT_URL_ONLINE">https://malwhereapp.com/submit_report.php</string>
+
 </resources>

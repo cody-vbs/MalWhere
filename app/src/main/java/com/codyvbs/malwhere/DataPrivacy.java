@@ -7,20 +7,19 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.util.Linkify;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class Learn extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener {
+public class DataPrivacy extends AppCompatActivity implements  NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawer;
     private static final String TAG = "LearnActivity";
 
@@ -28,15 +27,13 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
 
     SharedPreferences sharedPreferences;
 
-    Button feedbackBtn;
-
-    TextView dataPrivacy;
+    WebView webView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_learn);
+        setContentView(R.layout.activity_data_privacy);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -53,21 +50,24 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
         //sharedpreference
         sharedPreferences = getSharedPreferences(new Adapter().MyGuestPresf,MODE_PRIVATE);
 
-        feedbackBtn = findViewById(R.id.feedbackBtn);
-        dataPrivacy = findViewById(R.id.dataPrivacy);
+        webView = findViewById(R.id.webView);
 
-        dataPrivacy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-                startActivity(new Intent(Learn.this,DataPrivacy.class));
-            }
-        });
+        webView.loadUrl("https://www.privacypolicygenerator.info/live.php?token=KOlGiZjlKKPqOg3SdItxWQEQrDI3Qa1w");
 
-        feedbackBtn.setOnClickListener(new View.OnClickListener() {
+        webView.setWebChromeClient(new WebChromeClient() {
+            private ProgressDialog mProgress;
+
             @Override
-            public void onClick(View view) {
-                createFeedback();
+            public void onProgressChanged(WebView view, int progress) {
+                if (mProgress == null) {
+                    mProgress = new ProgressDialog(DataPrivacy.this);
+                    mProgress.show();
+                }
+                mProgress.setMessage("Loading " + String.valueOf(progress) + "%");
+                if (progress == 100) {
+                    mProgress.dismiss();
+                    mProgress = null;
+                }
             }
         });
 
@@ -80,7 +80,6 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
 
         //check active connection
         new CheckConnectionClass().checkConnection(this,getLifecycle());
-
     }
 
     @Override
@@ -88,26 +87,26 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
         switch (menuItem.getItemId()){
             case R.id.nav_imagescan:
                 finish();
-                startActivity(new Intent(Learn.this,MainActivity.class));
+                startActivity(new Intent(DataPrivacy.this,MainActivity.class));
                 break;
             case R.id.nav_texturlscan:
                 finish();
-                startActivity(new Intent(Learn.this,ScanTextUrl.class));
+                startActivity(new Intent(DataPrivacy.this,ScanTextUrl.class));
                 break;
             case R.id.nav_reports:
                 //check if the current user is a guest user
                 try{
                     if(sharedPreferences.getString("guest_user","").isEmpty()){
                         finish();
-                        startActivity(new Intent(Learn.this,Reports.class));
+                        startActivity(new Intent(DataPrivacy.this,Reports.class));
                     }else{
                         finish();
-                        startActivity(new Intent(Learn.this,ReportGuest.class));
+                        startActivity(new Intent(DataPrivacy.this,ReportGuest.class));
                     }
 
                 }catch(Exception e){
                     e.printStackTrace();
-                    Toast.makeText(Learn.this,e.toString(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DataPrivacy.this,e.toString(),Toast.LENGTH_SHORT).show();
                 }
 
                 break;
@@ -115,7 +114,7 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
                 //current activity
                 break;
             case R.id.nav_signout:
-                googleConfig.signOut(Learn.this);
+                googleConfig.signOut(DataPrivacy.this);
                 sharedPreferences.edit().clear().commit();
                 break;
 
@@ -141,14 +140,4 @@ public class Learn extends AppCompatActivity implements  NavigationView.OnNaviga
             }
         }).setIcon(android.R.drawable.ic_dialog_alert).show();
     }
-
-    private void createFeedback(){
-        Intent feedbackEmail = new Intent(Intent.ACTION_SEND);
-
-        feedbackEmail.setType("text/email");
-        feedbackEmail.putExtra(Intent.EXTRA_EMAIL, new String[] {"malwhereteam@gmail.com"});
-        feedbackEmail.putExtra(Intent.EXTRA_SUBJECT, "Feedback");
-        startActivity(Intent.createChooser(feedbackEmail, "Send Feedback:"));
-    }
-
 }

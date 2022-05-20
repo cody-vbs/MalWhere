@@ -699,6 +699,8 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                                    user = sharedPreferences.getString("guest_user","");
                                }
 
+                               sbResult.append("\n").append("MalWhere Predictive Model: BENIGN");
+
                                tvScanResult.setText(sbResult.toString());
 
                                saveLog(user,scanResult,timeStamp);
@@ -718,6 +720,8 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                                }else{
                                    user = sharedPreferences.getString("guest_user","");
                                }
+
+                               sbResult.append("\n").append("MalWhere Predictive Model: MALICIOUS");
 
                                tvScanResult.setText(sbResult.toString());
 
