@@ -3,6 +3,7 @@ package com.codyvbs.malwhere;
 public class Adapter {
     private static String detected_URL;
     private static String finalLongURL;
+    public static String getClicked;
     public static String MyGuestPresf = "GUEST_USER";
     public static String MainUserPresf = "MAIN_USER";
     public static final String urlShortenerDomain [] = {"bit.ly","tinyurl","is.gd","bit.do","cutt.ly","tinyurl.com","s.id",
@@ -31,5 +32,13 @@ public class Adapter {
 
     public static void setFinalLongURL(String finalLongURL) {
         Adapter.finalLongURL = finalLongURL;
+    }
+
+    public static String getGetClicked() {
+        return getClicked;
+    }
+
+    public static void setGetClicked(String getClicked) {
+        Adapter.getClicked = getClicked;
     }
 }

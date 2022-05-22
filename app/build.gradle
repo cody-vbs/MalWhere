@@ -84,5 +84,4 @@ dependencies {
     //crash handler when app crashes
     implementation 'cat.ereza:customactivityoncrash:2.3.0'
 
-
 }

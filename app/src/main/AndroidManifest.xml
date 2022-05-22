@@ -20,7 +20,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".DataPrivacy"></activity>
+        <activity android:name=".Educate"></activity>
+        <activity android:name=".DataPrivacy" />
         <activity
             android:name=".Login"
             android:screenOrientation="portrait" />

@@ -394,6 +394,15 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
             textViewMessage2.setText(msg2);
 
             Button dialogOkButton  = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            Button dialogLearn = (Button) dialog.findViewById(R.id.btn_dialog_learn);
+
+            dialogLearn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(ScanUrl.this,Educate.class));
+                    new Adapter().setGetClicked("ScanUrl");
+                }
+            });
             dialogOkButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -420,6 +429,15 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
             textViewCount.setText(count);
 
             Button dialogOkButton  = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            Button dialogLearn = (Button) dialog.findViewById(R.id.btn_dialog_learn);
+
+            dialogLearn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(ScanUrl.this,Educate.class));
+                    new Adapter().setGetClicked("ScanUrl");
+                }
+            });
             dialogOkButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

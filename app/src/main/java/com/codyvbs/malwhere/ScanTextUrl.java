@@ -25,6 +25,7 @@ import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -400,6 +401,15 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
             textViewMessage2.setText(msg2);
 
             Button dialogOkButton  = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            Button dialogLearn = (Button) dialog.findViewById(R.id.btn_dialog_learn);
+
+            dialogLearn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(ScanTextUrl.this,Educate.class));
+                    new Adapter().setGetClicked("ScanTextUrl");
+                }
+            });
             dialogOkButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -426,6 +436,15 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
             textViewCount.setText(count);
 
             Button dialogOkButton  = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            Button dialogLearn = (Button) dialog.findViewById(R.id.btn_dialog_learn);
+
+            dialogLearn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(ScanTextUrl.this,Educate.class));
+                    new Adapter().setGetClicked("ScanTextUrl");
+                }
+            });
             dialogOkButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

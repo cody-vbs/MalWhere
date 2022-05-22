@@ -43,93 +43,89 @@
                     android:layout_gravity="center_horizontal" />
 
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="App Version: malwhere-app3-version2"
-                android:textColor="@color/white"/>
-
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="UI Version: 1.0.0"
-                    android:textColor="@color/white"/>
-
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Got any feedbacks? Let us know your concerns and suggestions"
-                    android:textColor="@color/white"
-                    android:layout_marginTop="20dp"/>
-
-                <Button
-                    android:id="@+id/feedbackBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Write Feedback"
-                    android:layout_gravity="center"
-                    android:layout_margin="10dp"/>
-
-                <TextView
-                    android:id="@+id/dataPrivacy"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/data_privacy"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Third-party Software:"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/soft_VT"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/soft_ML"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:layout_marginTop="10dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_desc"
-                    android:textColor="@color/white"
-                    android:layout_marginTop="20dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="MalWhere Team"
-                    android:textColor="@color/white"
-                    android:layout_marginTop="10dp"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Sydney Ricafort"
+                    android:text="Definition"
                     android:textColor="@color/white"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Leah Juarez"
+                    android:text="What Is?"
                     android:textColor="@color/white"/>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Url"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/colorAccent"/>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="the address of a web page"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Webpage"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/colorAccent"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="the page of a website"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Malicious URL"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/colorAccent"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="an infected URL that facilitates scams, frauds, and a cyber-attacks. By clicking on a malicious URL, you can download a malware such as a Trojan or virus that can take control of your devices, stole your social media account or tricked you into disclosing your bank details on a fake website."
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Example: facebook.com/index/autolike.exe "
+                    android:layout_marginTop="10dp"
+                    android:textStyle="italic"
+                    android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Benign URL"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/colorAccent"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="a URL that is safe or a legitimate webpage."
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/white"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Example: facebook.com "
+                    android:layout_marginTop="10dp"
+                    android:textStyle="italic"
+                    android:textColor="@color/white"/>
 
 
             </LinearLayout>
