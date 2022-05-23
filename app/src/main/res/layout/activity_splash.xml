@@ -20,7 +20,31 @@
             android:layout_marginTop="90dp"
             android:src="@drawable/app_icon" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading datasets..."
+            android:layout_marginTop="12sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="10sp"
+            android:textColor="@color/white"/>
+
+        <com.white.progressview.HorizontalProgressView
+            android:id="@+id/progress100"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:progress="0"
+            android:layout_gravity="center"
+            app:progressReachColor="@color/colorAccent"
+            app:progressTextColor="@color/colorPrimaryDark"
+            app:progressTextVisible="true"
+            />
+
     </LinearLayout>
+
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

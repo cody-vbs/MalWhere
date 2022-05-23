@@ -84,4 +84,7 @@ dependencies {
     //crash handler when app crashes
     implementation 'cat.ereza:customactivityoncrash:2.3.0'
 
+    //progressbar
+    implementation 'com.white:progressview:1.0.1'
+
 }
