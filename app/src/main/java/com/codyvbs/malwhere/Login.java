@@ -159,7 +159,7 @@ public class Login extends AppCompatActivity {
                                 dialog.dismiss();
                             }
 
-                            showToastMessage("Welcome back " + user.getDisplayName());
+                            showToastMessage("Welcome " + user.getDisplayName());
                             launchMainActivity(user);
                         } else {
                             // If sign in fails, display a message to the user.

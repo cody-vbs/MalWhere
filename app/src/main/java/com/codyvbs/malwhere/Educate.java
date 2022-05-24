@@ -88,7 +88,7 @@ public class Educate extends AppCompatActivity implements  NavigationView.OnNavi
 
                 break;
             case R.id.nav_learn:
-                //current activity
+                startActivity(new Intent(Educate.this,Learn.class));
                 break;
             case R.id.nav_signout:
                 googleConfig.signOut(Educate.this);

@@ -173,6 +173,7 @@ public class Reports extends AppCompatActivity implements  NavigationView.OnNavi
 
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
+                        .setActivityTitle("Crop URL")
                         .start(Reports.this);
             }
         });

@@ -81,7 +81,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout drawer;
     private static final String TAG = "ReportGuestActivity";
 
-    private static final String URL = new Adapter().SUBMIT_REPORT_URL_LOCAL;
+    private static final String URL = new Adapter().SUBMIT_REPORT_URL_ONLINE;
 
     GoogleConfig googleConfig = new GoogleConfig();
 
@@ -174,6 +174,7 @@ public class ReportGuest extends AppCompatActivity implements NavigationView.OnN
 
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
+                        .setActivityTitle("Crop URL")
                         .start(ReportGuest.this);
             }
         });

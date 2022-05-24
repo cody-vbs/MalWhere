@@ -222,7 +222,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     //method for scanning URL using Virus Total API
 
     class ScanURLTask extends AsyncTask<Void,Void,Void> {
-
+        String myURl = editTextUrl.getText().toString();
         @Override
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(ScanUrl.this);
@@ -234,7 +234,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         protected Void doInBackground(Void... voids) {
 
             //call the extract url scan report method
-            scanUrl(editTextUrl.getText().toString());
+            scanUrl(myURl);
 
             return null;
         }
@@ -245,7 +245,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                 progressDialog.dismiss();
             }
 
-            getUrlReport(editTextUrl.getText().toString());
+            getUrlReport(myURl);
 
         }
     }
