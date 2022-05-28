@@ -72,7 +72,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
     EditText editTextUrl;
     TextView tv1,tv2,tvScanResult;
-    Button scanBtn,retryBtn;
+    Button scanBtn,retryBtn,statusInfoBtn;
 
     ProgressDialog progressDialog;
 
@@ -85,6 +85,8 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     SharedPreferences sharedPreferences,guestSharedPreference;
 
     private static final String URL = new Adapter().SCAN_LOGS_ONLINE;
+
+    String myUrlToScan;
 
 
     @Override
@@ -107,6 +109,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         tv2 = findViewById(R.id.tv2);
         scanBtn  = findViewById(R.id.scan_btn);
         retryBtn = findViewById(R.id.btn_retry);
+        statusInfoBtn = findViewById(R.id.btn_statusInfo);
         tvScanResult = findViewById(R.id.tvscanResult);
 
         //this will make the textview scrollble
@@ -150,9 +153,13 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
                 editTextUrl.setEnabled(false);
                 scanBtn.setEnabled(false);
 
+                myUrlToScan = editTextUrl.getText().toString();
+
                 new ScanURLTask().execute();
+
             }
         });
+
 
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -163,6 +170,14 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
                 startActivity(new Intent(ScanUrl.this,MainActivity.class));
                 finish();
+            }
+        });
+
+        statusInfoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ViewDialogStatusInfo alert = new ViewDialogStatusInfo();
+                alert.showDialog(ScanUrl.this);
             }
         });
 
@@ -222,11 +237,12 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
     //method for scanning URL using Virus Total API
 
     class ScanURLTask extends AsyncTask<Void,Void,Void> {
-        String myURl = editTextUrl.getText().toString();
+
         @Override
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(ScanUrl.this);
             progressDialog.setMessage("Analyzing URL");
+            progressDialog.setCancelable(false);
             progressDialog.show();
         }
 
@@ -234,8 +250,7 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
         protected Void doInBackground(Void... voids) {
 
             //call the extract url scan report method
-            scanUrl(myURl);
-
+            scanUrl(myUrlToScan);
             return null;
         }
 
@@ -244,8 +259,30 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
             if(progressDialog != null && progressDialog.isShowing()){
                 progressDialog.dismiss();
             }
+            getUrlReport(myUrlToScan);
 
+
+        }
+    }
+
+    class GetURLReportTask extends AsyncTask<Void,Void,Void> {
+        String myURl = editTextUrl.getText().toString();
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //call the extract url scan report method
             getUrlReport(myURl);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
 
         }
     }
@@ -608,6 +645,33 @@ public class ScanUrl extends AppCompatActivity implements NavigationView.OnNavig
 
         // add it to the RequestQueue
         queue.add(getRequest);
+    }
+
+    public class ViewDialogStatusInfo {
+
+        public void showDialog(Activity activity){
+            final Dialog dialog = new Dialog(activity);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.status_info_dialog);
+
+            TextView tv = (TextView) dialog.findViewById(R.id.text_dialog2);
+
+            TextView tvArr [] = {tv};
+
+            new CustomUI().setTextViewFontOnluFamily(ScanUrl.this,tvArr);
+
+            Button dialogButton = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            dialogButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+
+        }
     }
 
 

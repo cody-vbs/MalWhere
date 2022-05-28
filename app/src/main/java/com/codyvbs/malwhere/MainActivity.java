@@ -549,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void extractLongUrl(String urlShorten){
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        String myReq = "https://unshort.herokuapp.com/api/?url=" + urlShorten;
+        String myReq = getResources().getString(R.string.malwhere_url_unshortener) + urlShorten;
 
         // prepare the Request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,

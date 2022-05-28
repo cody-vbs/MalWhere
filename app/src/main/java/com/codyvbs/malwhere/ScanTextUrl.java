@@ -57,6 +57,7 @@ import org.imaginativeworld.oopsnointernet.dialogs.pendulum.DialogPropertiesPend
 import org.imaginativeworld.oopsnointernet.dialogs.pendulum.NoInternetDialogPendulum;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -75,7 +76,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
     EditText editTextUrl;
     TextView tv1,tv2,tvScanResult;
-    Button scanBtn,retryBtn;
+    Button scanBtn,retryBtn,statusInfoBtn;
 
     ProgressDialog progressDialog,progressDialog2;
 
@@ -88,6 +89,8 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
     GoogleConfig googleConfig = new GoogleConfig();
 
     SharedPreferences sharedPreferences,guestSharedPreference;
+
+    String myUrlToScan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +109,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         tv2 = findViewById(R.id.tv2);
         scanBtn  = findViewById(R.id.scan_btn);
         retryBtn = findViewById(R.id.btn_retry);
+        statusInfoBtn = findViewById(R.id.btn_statusInfo);
         tvScanResult = findViewById(R.id.tvscanResult);
 
         //set the current item
@@ -148,6 +152,8 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 editTextUrl.setEnabled(false);
                 scanBtn.setEnabled(false);
 
+                myUrlToScan = editTextUrl.getText().toString();
+
                 if(editTextUrl.getText().toString().isEmpty()){
                     Snacky.builder()
                             .setView(view)
@@ -179,6 +185,14 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 scanBtn.setEnabled(true);
 
                 reset();
+            }
+        });
+
+        statusInfoBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ViewDialogStatusInfo alert = new ViewDialogStatusInfo();
+                alert.showDialog(ScanTextUrl.this);
             }
         });
     }
@@ -243,6 +257,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(ScanTextUrl.this);
             progressDialog.setMessage("Analyzing URL");
+            progressDialog.setCancelable(false);
             progressDialog.show();
         }
 
@@ -255,7 +270,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 isURLShorten(new Adapter().urlShortenerDomain,myURl) == true){
                 scanUrl(new Adapter().getFinalLongURL());
             }else{
-                scanUrl(myURl);
+                scanUrl(myUrlToScan);
             }
 
 
@@ -271,8 +286,10 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
             if(isURLShorten(new Adapter().urlShortenerDomain,myURl) == true){
                 getUrlReport(new Adapter().getFinalLongURL());
             }else{
-                getUrlReport(myURl);
+                getUrlReport(myUrlToScan);
             }
+
+
 
 
 
@@ -512,6 +529,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
     private void reset(){
         editTextUrl.setText("");
         tvScanResult.setText("...");
+        maliciousCount = 0;
     }
 
     private void saveLog(String user, String scanResult, String timestamp){
@@ -765,6 +783,33 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
         // add it to the RequestQueue
         queue.add(getRequest);
+    }
+
+    public class ViewDialogStatusInfo {
+
+        public void showDialog(Activity activity){
+            final Dialog dialog = new Dialog(activity);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.status_info_dialog);
+
+            TextView tv = (TextView) dialog.findViewById(R.id.text_dialog2);
+
+            TextView tvArr [] = {tv};
+
+            new CustomUI().setTextViewFontOnluFamily(ScanTextUrl.this,tvArr);
+
+            Button dialogButton = (Button) dialog.findViewById(R.id.btn_dialog_ok);
+            dialogButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+
+        }
     }
 
 

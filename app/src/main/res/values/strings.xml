@@ -16,7 +16,9 @@
     <string name="soft_ML"><a href="#">Firebase ML Kit</a></string>
 
     <string name="predictive_model">https://malwhere-model-api4.herokuapp.com/?url=</string>
+    <string name="malwhere_url_unshortener">https://malwhere-unshorter-api.herokuapp.com/api?url=</string>
     <string name="SUBMIT_REPORT_URL_LOCAL">http://192.168.1.4/MalWhere/submit_report.php</string>
     <string name="SUBMIT_REPORT_URL_ONLINE">https://malwhereapp.com/submit_report.php</string>
+    <string name="status_info_message">Clean/Benign Site: this site has no malware detected.\n\nUnrated Site: this site\'s review information is not existing.\n\nMalware Site: this site  distributes malware.\n\nPhishing Site: the site tries to steal user\'s credentials\n\nMalicious Site: the site contains exploits or malicious artifacts\n\nSuspicious Site: this site is suspicious. Grey area\n\nSpam Site: this site is involved in unsolicited email,popups,automatic commenting,etc.</string>
 
 </resources>

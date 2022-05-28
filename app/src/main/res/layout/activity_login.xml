@@ -7,6 +7,15 @@
     android:background="@color/bkg_color"
     tools:context=".Login">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_margin="50dp"
+        android:text="Scan a suspicious URL to avoid clicking a malware and other cyberthreats "
+        android:textColor="@color/white"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
