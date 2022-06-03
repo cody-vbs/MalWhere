@@ -19,6 +19,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.StrictMode;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -84,13 +85,15 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
     String longURL;
 
-    StringBuilder sbResult;
+    StringBuilder sbResult,sbResult2;
 
     GoogleConfig googleConfig = new GoogleConfig();
 
     SharedPreferences sharedPreferences,guestSharedPreference;
 
     String myUrlToScan;
+
+    boolean isTryAgainClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,6 +155,8 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 editTextUrl.setEnabled(false);
                 scanBtn.setEnabled(false);
 
+                isTryAgainClicked = false;
+
                 myUrlToScan = editTextUrl.getText().toString();
 
                 if(editTextUrl.getText().toString().isEmpty()){
@@ -183,8 +188,9 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 //enable the textfield
                 editTextUrl.setEnabled(true);
                 scanBtn.setEnabled(true);
-
                 reset();
+
+                isTryAgainClicked = true;
             }
         });
 
@@ -283,6 +289,28 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 progressDialog.dismiss();
             }
 
+            new GetURLReportTask().execute();
+
+        }
+    }
+
+
+    class GetURLReportTask extends AsyncTask<Void,Void,Void> {
+        String myURl = editTextUrl.getText().toString();
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(ScanTextUrl.this);
+            progressDialog.setMessage("Retrieving results");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //call the extract url scan report method
+
             if(isURLShorten(new Adapter().urlShortenerDomain,myURl) == true){
                 getUrlReport(new Adapter().getFinalLongURL());
             }else{
@@ -291,10 +319,47 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
 
 
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(progressDialog != null && progressDialog.isShowing()){
+                progressDialog.dismiss();
+            }
+
+            new CountDownTimer(10000, 1000) {
+                public void onTick(long millisUntilFinished) {
+                    //Toast.makeText(ScanUrl.this,"s",Toast.LENGTH_SHORT).show();
+                }
+
+                public void onFinish() {
+                    if(tvScanResult.getText().toString().equalsIgnoreCase("...") && !isTryAgainClicked){
+                        new androidx.appcompat.app.AlertDialog.Builder(ScanTextUrl.this)
+                                .setTitle("MalWhere")
+                                .setMessage("Scanning the URL is taking longer than usual.")
+                                .setCancelable(false)
+                                .setIcon(R.drawable.app_icon)
+                                .setPositiveButton("Rescan", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        tvScanResult.setText("...");
+                                        new PredictUrlModelTaskNew().execute();
+                                    }
+                                }).setNegativeButton("Try another", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                reset();
+                            }
+                        }).show();
+                    }
+                }
+            }.start();
 
 
         }
     }
+
 
 
 
@@ -313,13 +378,13 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
 
 
         } catch (APIKeyNotFoundException ex) {
-            Toast.makeText(this,"API Key not found! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"API Key not found! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (UnsupportedEncodingException ex) {
-            Toast.makeText(this,"Unsupported Encoding Format!" + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Unsupported Encoding Format!" + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (UnauthorizedAccessException ex) {
-            Toast.makeText(this,"Invalid API Key " + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Invalid API Key " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (Exception ex) {
-            Toast.makeText(this,"Something Bad Happened! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Something Bad Happened! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -392,14 +457,14 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
             }
 
         } catch (APIKeyNotFoundException ex) {
-            Toast.makeText(this,"API Key not found! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"API Key not found! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (UnsupportedEncodingException ex) {
-            Toast.makeText(this,"Unsupported Encoding Format!" + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Unsupported Encoding Format!" + ex.getMessage(),Toast.LENGTH_SHORT).show();
 
         } catch (UnauthorizedAccessException ex) {
-            Toast.makeText(this,"Invalid API Key " + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Invalid API Key " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         } catch (Exception ex) {
-            Toast.makeText(this,"Something Bad Happened! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Something Bad Happened! " + ex.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -574,7 +639,7 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
     private void extractLongUrl(String urlShorten){
 
         RequestQueue queue = Volley.newRequestQueue(this);
-        String myReq = "https://unshort.herokuapp.com/api/?url=" + urlShorten;
+        String myReq = getResources().getString(R.string.malwhere_url_unshortener) + urlShorten;
 
         // prepare the Request
         JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,
@@ -632,6 +697,41 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                 progressDialog2.dismiss();
             }
 
+
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    class PredictUrlModelTaskNew extends  AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(ScanTextUrl.this);
+            progressDialog.setMessage("Analyzing URL");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            predictiveModedlAlone(editTextUrl.getText().toString());
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+
+            if(progressDialog != null && progressDialog.isShowing()){
+                progressDialog.dismiss();
+            }
 
         }
     }
@@ -766,6 +866,87 @@ public class ScanTextUrl extends AppCompatActivity implements  NavigationView.On
                                saveLog(user,scanResult,timeStamp);
 
                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Error.Response", error.toString());
+                    }
+                }
+        );
+
+        // add it to the RequestQueue
+        queue.add(getRequest);
+    }
+
+    private void predictiveModedlAlone(String mUrl){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String myReq = getString(R.string.predictive_model) + mUrl;
+
+        sbResult2 = new StringBuilder();
+
+        // prepare the Request
+        JsonObjectRequest getRequest = new JsonObjectRequest(Request.Method.GET, myReq, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // display response
+                        //assign the long url to setter and getter
+                        try {
+
+                            //Toast.makeText(ScanTextUrl.this,response.getString("prediction"),Toast.LENGTH_SHORT).show();
+                            if(response.getString("prediction").equalsIgnoreCase("[0]")){
+                                BenignDialog benignDialog = new BenignDialog();
+                                benignDialog.showDialog(ScanTextUrl.this,"Benign URL", "No vendors flagged this URL as malicious");
+
+                                //save log to server
+                                String user = "";
+                                String scanResult = "Benign";
+                                String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+
+                                if(sharedPreferences.getString("guest_user","").isEmpty()){
+                                    user = sharedPreferences.getString("user_display_name","");
+                                }else{
+                                    user = sharedPreferences.getString("guest_user","");
+                                }
+
+                                sbResult2.append("\n").append("MalWhere Predictive Model: BENIGN");
+
+                                tvScanResult.setText(sbResult2.toString());
+
+                                saveLog(user,scanResult,timeStamp);
+                            }else{
+
+                               MaliciousDialog maliciousDialog = new MaliciousDialog();
+                                maliciousDialog.showDialog(ScanTextUrl.this,"Malicious URL",
+                                        "This URL is flagged as Malicious");
+
+                                //save log to server
+                                String user = "";
+                                String scanResult = "Malicious";
+                                String timeStamp = new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime());
+
+                                if(sharedPreferences.getString("guest_user","").isEmpty()){
+                                    user = sharedPreferences.getString("user_display_name","");
+                                }else{
+                                    user = sharedPreferences.getString("guest_user","");
+                                }
+                                sbResult2.append("\n").append("MalWhere Predictive Model: MALICIOUS");
+
+                                tvScanResult.setText(sbResult2.toString());
+
+
+                                saveLog(user,scanResult,timeStamp);
+
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();

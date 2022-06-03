@@ -445,8 +445,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }).setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                new Adapter().setDetected_URL(recogText.getText().toString().replace("\n",""));
-                startActivity(new Intent(MainActivity.this,ScanUrl.class));
+                if(isURLShorten(new Adapter().urlShortenerDomain,recogText.getText().toString()) == true){
+
+
+                    //display short url detected warn dialog
+                    shortenURLWarnDialog(recogText.getText().toString());
+
+                }else{
+                    //set the url value to adapter
+                    new Adapter().setDetected_URL(recogText.getText().toString());
+                    //open new activity
+                    startActivity(new Intent(MainActivity.this,ScanUrl.class));
+                }
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
