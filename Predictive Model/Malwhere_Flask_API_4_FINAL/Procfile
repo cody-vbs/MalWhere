@@ -1,0 +1,4 @@
+web: gunicorn wsgi4:app
+worker: python wsgi4.py 
+worker: python app4 
+worker: python Malwhere_model_predict_4.py 
